@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Repostería - Recetas</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <div class="brand__logo">🍰</div>
+        <div class="brand__text">
+          <div class="brand__name">Repostería</div>
+          <div class="brand__tag">Inventario & Costos</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav__link" href="./index.html">Ingredientes</a>
+        <a class="nav__link active" href="./recetas.html">Recetas</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Recetas</h1>
+      <p class="sub">
+        Crea recetas, agrega ingredientes y calcula el costo total y por porción.
+      </p>
+    </section>
+
+    <section class="grid-recetas">
+      <!-- Panel izquierdo -->
+      <section class="stack">
+        <section class="card">
+          <div class="card__head">
+            <h2>Crear receta</h2>
+            <p class="muted">Define nombre y porciones.</p>
+          </div>
+
+          <form id="formReceta" class="form">
+            <div class="form__row">
+              <label class="field">
+                <span class="field__label">Nombre</span>
+                <input class="field__input" name="nombre" placeholder="Panqué de vainilla" required />
+              </label>
+            </div>
+
+            <div class="form__row">
+              <label class="field">
+                <span class="field__label">Porciones</span>
+                <input class="field__input" name="porciones" type="number" min="1" step="1" value="1" required />
+              </label>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn">Crear</button>
+            </div>
+
+            <p id="msgReceta" class="msg"></p>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="card__head row">
+            <div>
+              <h2>Seleccionar receta</h2>
+              <p class="muted">Carga detalle y costo.</p>
+            </div>
+            <button id="btnCargar" type="button" class="btn btn--ghost">Cargar</button>
+          </div>
+
+          <div class="form__row">
+            <label class="field">
+              <span class="field__label">Receta</span>
+              <select id="selectReceta" class="field__input"></select>
+            </label>
+          </div>
+
+          <p id="msgLoad" class="msg"></p>
+        </section>
+
+        <section class="card">
+          <div class="card__head">
+            <h2>Agregar ingrediente</h2>
+            <p class="muted">Sólidos en g/kg · líquidos en ml/L/tsp/tbsp · huevos en pz.</p>
+          </div>
+
+          <form id="formItem" class="form">
+            <div class="form__row">
+              <label class="field">
+                <span class="field__label">Ingrediente</span>
+                <select id="selectIngrediente" class="field__input"></select>
+              </label>
+            </div>
+
+            <div class="form__row grid2">
+              <label class="field">
+                <span class="field__label">Cantidad</span>
+                <input class="field__input" name="cantidad" type="number" step="0.001" min="0" placeholder="200" required />
+              </label>
+
+              <label class="field">
+                <span class="field__label">Unidad</span>
+                <select class="field__input" name="unidad" required>
+                  <option value="g">g</option>
+                  <option value="kg">kg</option>
+                  <option value="ml">ml</option>
+                  <option value="l">l</option>
+                  <option value="tsp">tsp</option>
+                  <option value="tbsp">tbsp</option>
+                  <option value="pz">pz</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn">Agregar</button>
+            </div>
+
+            <p id="msgItem" class="msg"></p>
+          </form>
+        </section>
+      </section>
+
+      <!-- Panel derecho -->
+      <section class="card">
+        <div class="card__head row">
+          <div>
+            <h2>Detalle + costo</h2>
+            <p class="muted">Vista de ingredientes usados en la receta seleccionada.</p>
+          </div>
+          <button id="btnCosto" type="button" class="btn btn--ghost">Actualizar costo</button>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="kpi__label">Costo</div>
+            <div id="costoTxt" class="kpi__value">—</div>
+          </div>
+        </div>
+
+        <div class="tableWrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Ingrediente</th>
+                <th>Usado (base)</th>
+                <th>Unitario</th>
+                <th>Costo</th>
+                <th>Original</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaItems"></tbody>
+          </table>
+        </div>
+
+        <p class="hint">
+          Si agregas una unidad que no coincide con la base del ingrediente (por ejemplo harina en tbsp),
+          el backend la rechazará (por densidad).
+        </p>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <span>© Repostería</span>
+      <span class="muted">Backend: FastAPI + SQLite</span>
+    </div>
+  </footer>
+
+  <script src="./recetas.js"></script>
+</body>
+</html>

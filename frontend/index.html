@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Repostería - Ingredientes</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <div class="brand__logo">🍰</div>
+        <div class="brand__text">
+          <div class="brand__name">Repostería</div>
+          <div class="brand__tag">Inventario & Costos</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav__link active" href="./index.html">Ingredientes</a>
+        <a class="nav__link" href="./recetas.html">Recetas</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Ingredientes</h1>
+      <p class="sub">
+        Administra compras, unidades base y costo unitario para calcular el costo real de tus recetas.
+      </p>
+    </section>
+
+    <section class="grid">
+      <section class="card">
+        <div class="card__head">
+          <h2>Agregar / Editar ingrediente</h2>
+          <p class="muted">Guarda en SQLite vía FastAPI.</p>
+        </div>
+
+        <form id="form" class="form">
+          <div class="form__row">
+            <label class="field">
+              <span class="field__label">Nombre</span>
+              <input class="field__input" name="nombre" placeholder="Harina" required />
+            </label>
+          </div>
+
+          <div class="form__row grid2">
+            <label class="field">
+              <span class="field__label">Costo compra ($)</span>
+              <input class="field__input" name="costo_compra" type="number" step="0.01" min="0" placeholder="120" required />
+            </label>
+
+            <label class="field">
+              <span class="field__label">Cantidad comprada</span>
+              <input class="field__input" name="cantidad_compra" type="number" step="0.001" min="0" placeholder="1" required />
+            </label>
+          </div>
+
+          <div class="form__row">
+            <label class="field">
+              <span class="field__label">Unidad</span>
+              <select class="field__input" name="unidad" required>
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+                <option value="ml">ml</option>
+                <option value="l">l</option>
+                <option value="tsp">tsp (cucharadita)</option>
+                <option value="tbsp">tbsp (cucharada)</option>
+                <option value="pz">pz</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">Guardar</button>
+            <button class="btn btn--ghost" type="button" id="btnCancelar">Cancelar edición</button>
+          </div>
+
+          <p id="msg" class="msg"></p>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="card__head row">
+          <div>
+            <h2>Lista de ingredientes</h2>
+            <p class="muted">Consulta rápida del costo unitario en unidad base.</p>
+          </div>
+          <button id="btnReload" type="button" class="btn btn--ghost">Recargar</button>
+        </div>
+
+        <div class="tableWrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Compra</th>
+                <th>Base</th>
+                <th>Costo unitario</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla"></tbody>
+          </table>
+        </div>
+
+        <p class="hint">
+          Tip: sólidos en <b>g/kg</b>, líquidos en <b>ml/L/tsp/tbsp</b>, huevos en <b>pz</b>.
+        </p>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <span>© Repostería</span>
+      <span class="muted">Backend: FastAPI + SQLite</span>
+    </div>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
