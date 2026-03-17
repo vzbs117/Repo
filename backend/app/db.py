@@ -1,9 +1,18 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-Database="sqlite:///./repostreria.db"
+#le la Url desde la cariable de entorno; si no exixste una local , Usa SQLite local
+Database_URL= os.getenv("DATABASE_URL", "sqlite:///./repostreria.db")
+#Database="sqlite:///./repostreria.db"
 
-engien = create_engine(Database, connect_args={"check_same_thread": False})
+connect_args={"check_same_thread":False} if Database_URL.startswith("sqlite") else {}
 
-SessionLocal= sessionmaker(autocommit=False, autoflush=False, bind=engien)
+engine=create_engine(
+    Database_URL,
+    connect_args=connect_args,
+    pool_pre_ping=True #detecta conexiones caidas automaticamente 
+)
+
+SessionLocal= sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base=declarative_base()
