@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Costeo Negocio V2</title>
+  <link rel="stylesheet" href="./style.css">
+
+  <nav class="nav">
+        <a class="nav__link active" href="./index.html">Ingredientes</a>
+        <a class="nav__link" href="./recetas.html">Recetas</a>
+        <a class="nav__link" href="./negocio.html">Negocio</a>
+ </nav>
+</head>
+<body>
+<main class="container">
+  <h1>Costeo de Negocio (V2)</h1>
+
+  <section class="card">
+    <h2>Configurar receta</h2>
+
+    <label>Receta</label>
+    <select id="selReceta"></select>
+
+    <label>Empleado</label>
+    <select id="selEmpleado"></select>
+
+    <div class="grid2">
+      <label>Unidades producidas
+        <input id="unidades" type="number" value="100">
+      </label>
+
+      <label>Tiempo trabajo (min)
+        <input id="tiempo" type="number" value="120">
+      </label>
+    </div>
+
+    <div class="grid2">
+      <label>Empaque por unidad $
+        <input id="empaque" type="number" step="0.01" value="0.5">
+      </label>
+
+      <label>Transporte por lote $
+        <input id="transporte" type="number" step="0.01" value="30">
+      </label>
+    </div>
+
+    <label>Margen %</label>
+    <input id="margen" type="number" step="1" value="30">
+
+    <button id="btnGuardar">Guardar Config</button>
+    <button id="btnResumen" class="secondary">Ver Resumen</button>
+
+    <p id="msg"></p>
+  </section>
+
+  <section class="card">
+    <h2>Resumen</h2>
+    <pre id="out"></pre>
+  </section>
+
+</main>
+
+<script src="./negocio.js"></script>
+</body>
+</html>

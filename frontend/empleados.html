@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repopstreria - Empleados </title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Empleados</h1>
+        <p class="sub">Registra Empleados para calcular la mano de obra.</p>
+
+        <p class="sub">
+            <a href="./negocio.html">-> Ir a costeo de negocio</a>
+            &nbsp; | &nbsp;
+            <a href="./recetas.html">-> Ir a recetas</a>
+        </p>
+
+        <section class="card">
+            <h2>Dar de alta </h2>
+            <form id="formEmpleado">
+                <label>
+                    Nombre
+                    <input name="nombre" placeholder="Ayudante" required>
+                </label>
+
+                <label>
+                    pago diario ($)
+                    <input name="pago_diario" type="number" step="0.01" min="0" placeholder="250" required>
+                </label>
+
+                <label >
+                    Horas del dia 
+                    <input   name="horas_dia" type="number" step="0.5" value="8" required>
+                </label>
+
+                <label class="row" style="gap:10px; align-items: center;">
+                    <input type="checkbox" name="activo" checked>
+                    Activo
+                </label>
+
+                <button type="submit">Guardar empleado</button>
+                <button type="button" id="btnReload" class="secondary">Recargar</button>
+
+                <p id="msg" class="msg"></p>
+            </form>
+        </section>
+
+        <section class="card">
+            <div class="row">
+                <h2>Lista</h2>
+            </div>
+
+            <div class="tableWrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Pago diario</th>
+                            <th>Horas</th>
+                            <th>Salario por hora</th>
+                            <th>Activo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaEmpleados"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="./empleados.js"></script>
+    
+</body>
+</html>

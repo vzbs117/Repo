@@ -234,3 +234,88 @@ h1{ margin:0 0 6px; font-size: 34px; letter-spacing: -0.4px; }
   font-weight: 850;
   margin-top: 4px;
 }
+/* ===== UI polish / overrides ===== */
+:root{
+  --radius-sm: 14px;
+  --radius-lg: 22px;
+  --focus: 0 0 0 4px rgba(255,255,255,0.08);
+}
+
+/* Mejor jerarquía */
+h2{ margin:0; letter-spacing:-0.2px; }
+.card{ border-radius: var(--radius-lg); }
+.brand__name{ font-size: 14px; }
+.brand__tag{ opacity: .9; }
+
+/* Pills / estado */
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(124,255,178,0.10);
+  color: rgba(124,255,178,0.95);
+  font-weight: 800;
+  font-size: 12px;
+}
+
+/* Inputs más “Apple-ish” y accesibles */
+.field__input{
+  border-radius: var(--radius-sm);
+  transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
+}
+.field__input:hover{
+  border-color: rgba(255,255,255,0.22);
+}
+.field__input:focus{
+  box-shadow: var(--focus);
+}
+
+/* Botones: tamaños, disabled, primary */
+.btn{
+  border-radius: var(--radius-sm);
+  transition: transform .06s ease, background .15s ease, border-color .15s ease;
+}
+.btn:focus-visible{
+  outline: none;
+  box-shadow: var(--focus);
+}
+.btn[disabled]{
+  opacity: .45;
+  cursor: not-allowed;
+}
+.btn--primary{
+  background: rgba(255,255,255,0.20);
+  border-color: rgba(255,255,255,0.22);
+}
+.btn--primary:hover{ background: rgba(255,255,255,0.26); }
+
+.btn--sm{
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* Tabla: números a la derecha + acciones consistentes */
+.table .num{ text-align:right; font-variant-numeric: tabular-nums; }
+.table tbody td{ font-variant-numeric: tabular-nums; }
+
+/* Acciones centradas */
+.th-actions{ width: 160px; }
+.table td.actionsCell{
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Estados empty/loading un poquito más bonitos */
+.table tbody tr.state td{
+  color: var(--muted);
+  padding: 18px 12px;
+}
+
+/* Mensajes más visibles */
+.msg{
+  padding-top: 6px;
+}

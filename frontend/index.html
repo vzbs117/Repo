@@ -20,6 +20,7 @@
       <nav class="nav">
         <a class="nav__link active" href="./index.html">Ingredientes</a>
         <a class="nav__link" href="./recetas.html">Recetas</a>
+        <a class="nav__link" href="./negocio.html">Negocio</a>
       </nav>
     </div>
   </header>
@@ -34,9 +35,12 @@
 
     <section class="grid">
       <section class="card">
-        <div class="card__head">
-          <h2>Agregar / Editar ingrediente</h2>
-          <p class="muted">Guarda en SQLite vía FastAPI.</p>
+        <div class="card__head row">
+          <div>
+            <h2>Agregar / Editar ingrediente</h2>
+            <p class="muted">Guarda en SQLite vía FastAPI.</p>
+          </div>
+          <span id="editPill" class="pill" hidden> Modo edicion</span>
         </div>
 
         <form id="form" class="form">
@@ -75,8 +79,8 @@
           </div>
 
           <div class="actions">
-            <button class="btn" type="submit">Guardar</button>
-            <button class="btn btn--ghost" type="button" id="btnCancelar">Cancelar edición</button>
+            <button class="btn btn--primary" type="submit" id="btnGuardar">Guardar</button>
+            <button class="btn btn--ghost" type="button" id="btnCancelar" disabled>Cancelar edición</button>
           </div>
 
           <p id="msg" class="msg"></p>
