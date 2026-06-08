@@ -61,6 +61,8 @@ python -m unittest discover -s tests -v
 - `UVICORN_RELOAD`: `true` o `false` para recarga automatica.
 - `BACKEND_CORS_ORIGINS`: origenes permitidos por CORS, separados por comas.
 
+Toda la configuracion del backend se centraliza en [app/settings.py](/Users/saul/Desktop/portafolio/repostreria/backend/app/settings.py).
+
 ## Notas
 
 - Si no defines `DATABASE_URL`, el proyecto usa SQLite local con `repostreria.db`.

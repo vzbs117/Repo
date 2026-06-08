@@ -24,28 +24,34 @@ def _normalizar_unidad(v: str) -> str:
     return ALIASES_UNIDAD.get(v.strip().lower(), v.strip().lower())
 
 
+def _validar_unidad(v: str, unidades_validas: set[str]) -> str:
+    v = _normalizar_unidad(v)
+    if v not in unidades_validas:
+        raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(unidades_validas)}")
+    return v
+
+
+class NombreNormalizadoSchema(BaseModel):
+    @field_validator("nombre", check_fields=False)
+    @classmethod
+    def nombre_no_vacio(cls, v: str) -> str:
+        return _normalizar_nombre(v)
+
+
 # ─────────────────────────────────────────
 # INGREDIENTES
 # ─────────────────────────────────────────
 
-class IngredienteCreate(BaseModel):
+class IngredienteCreate(NombreNormalizadoSchema):
     nombre: str = Field(min_length=1, max_length=100)
     costo_compra: float = Field(gt=0, description="Costo total pagado, debe ser mayor a 0")
     cantidad_compra: float = Field(gt=0, description="Cantidad comprada, debe ser mayor a 0")
     unidad: str
 
-    @field_validator("nombre")
-    @classmethod
-    def nombre_no_vacio(cls, v: str) -> str:
-        return _normalizar_nombre(v)
-
     @field_validator("unidad")
     @classmethod
     def unidad_valida(cls, v: str) -> str:
-        v = _normalizar_unidad(v)
-        if v not in UNIDADES_COMPRA_VALIDAS:
-            raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(UNIDADES_COMPRA_VALIDAS)}")
-        return v
+        return _validar_unidad(v, UNIDADES_COMPRA_VALIDAS)
 
 
 class IngredienteUpdate(IngredienteCreate):
@@ -68,14 +74,9 @@ class IngredienteOut(BaseModel):
 # RECETAS
 # ─────────────────────────────────────────
 
-class RecetasCreate(BaseModel):
+class RecetasCreate(NombreNormalizadoSchema):
     nombre: str = Field(min_length=1, max_length=100)
     porciones: int = Field(default=1, ge=1)
-
-    @field_validator("nombre")
-    @classmethod
-    def nombre_no_vacio(cls, v: str) -> str:
-        return _normalizar_nombre(v)
 
 
 class RecetaOut(BaseModel):
@@ -104,10 +105,7 @@ class RecetaItemCreate(BaseModel):
     @field_validator("unidad")
     @classmethod
     def unidad_valida(cls, v: str) -> str:
-        v = _normalizar_unidad(v)
-        if v not in UNIDADES_RECETA_VALIDAS:
-            raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(UNIDADES_RECETA_VALIDAS)}")
-        return v
+        return _validar_unidad(v, UNIDADES_RECETA_VALIDAS)
 
 
 class RecetaItemUpdate(BaseModel):
@@ -117,10 +115,7 @@ class RecetaItemUpdate(BaseModel):
     @field_validator("unidad")
     @classmethod
     def unidad_valida(cls, v: str) -> str:
-        v = _normalizar_unidad(v)
-        if v not in UNIDADES_RECETA_VALIDAS:
-            raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(UNIDADES_RECETA_VALIDAS)}")
-        return v
+        return _validar_unidad(v, UNIDADES_RECETA_VALIDAS)
 
 
 class RecetaItemOut(BaseModel):
@@ -164,7 +159,7 @@ class RecetaDetalleOut(BaseModel):
 # CONFIG RECETA V2
 # ─────────────────────────────────────────
 
-class RecetaConfigUpdate(BaseModel):
+class RecetaConfigUpdate(NombreNormalizadoSchema):
     nombre: str = Field(min_length=1, max_length=100)
     porciones: int = Field(default=1, ge=1)
     unidades_producidas: int = Field(default=1, ge=1)
@@ -174,26 +169,15 @@ class RecetaConfigUpdate(BaseModel):
     margen_markup: float = Field(default=0.30, ge=0, le=10)
     empleado_id: int | None = None
 
-    @field_validator("nombre")
-    @classmethod
-    def nombre_no_vacio(cls, v: str) -> str:
-        return _normalizar_nombre(v)
-
-
 # ─────────────────────────────────────────
 # EMPLEADOS
 # ─────────────────────────────────────────
 
-class EmpleadoCreate(BaseModel):
+class EmpleadoCreate(NombreNormalizadoSchema):
     nombre: str = Field(min_length=1, max_length=100)
     pago_diario: float = Field(ge=0)
     horas_dia: float = Field(default=8.0, gt=0, le=24)
     activo: bool = True
-
-    @field_validator("nombre")
-    @classmethod
-    def nombre_no_vacio(cls, v: str) -> str:
-        return _normalizar_nombre(v)
 
 
 class EmpleadoOut(BaseModel):

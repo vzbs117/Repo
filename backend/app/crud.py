@@ -1,7 +1,7 @@
 # crud.py
 import unicodedata
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from .models import Unidad, Ingrediente, Receta, RecetaItem, Empleado
@@ -47,6 +47,75 @@ def _convertir_unidad_culinaria_a_base(
         return None
 
     return cantidad * gramos_por_unidad
+
+
+def _guardar_y_refrescar(db: Session, obj) -> None:
+    db.commit()
+    db.refresh(obj)
+
+
+def obtener_unidad_o_400(db: Session, unidad: str) -> Unidad:
+    u = db.query(Unidad).filter(Unidad.codigo == unidad).first()
+    if not u:
+        raise HTTPException(status_code=400, detail=f"Unidad no soportada: {unidad}")
+    return u
+
+
+def obtener_ingrediente_o_404(db: Session, ingrediente_id: int) -> Ingrediente:
+    ing = db.query(Ingrediente).filter(Ingrediente.id == ingrediente_id).first()
+    if not ing:
+        raise HTTPException(status_code=404, detail="Ingrediente no encontrado")
+    return ing
+
+
+def obtener_receta_o_404(db: Session, receta_id: int) -> Receta:
+    receta = db.query(Receta).filter(Receta.id == receta_id).first()
+    if not receta:
+        raise HTTPException(status_code=404, detail="Receta no encontrada")
+    return receta
+
+
+def obtener_receta_detalle_o_404(db: Session, receta_id: int) -> Receta:
+    receta = (
+        db.query(Receta)
+        .options(joinedload(Receta.items).joinedload(RecetaItem.ingrediente))
+        .filter(Receta.id == receta_id)
+        .first()
+    )
+    if not receta:
+        raise HTTPException(status_code=404, detail="Receta no encontrada")
+    return receta
+
+
+def obtener_item_receta_o_404(db: Session, receta_id: int, item_id: int) -> RecetaItem:
+    item = db.query(RecetaItem).filter(
+        RecetaItem.id == item_id,
+        RecetaItem.receta_id == receta_id,
+    ).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item no encontrado")
+    return item
+
+
+def obtener_empleado_o_404(db: Session, empleado_id: int) -> Empleado:
+    empleado = db.query(Empleado).filter(Empleado.id == empleado_id).first()
+    if not empleado:
+        raise HTTPException(status_code=404, detail="Empleado no encontrado")
+    return empleado
+
+
+def _validar_nombre_unico(
+    db: Session,
+    model,
+    nombre: str,
+    detalle_conflicto: str,
+    exclude_id: int | None = None,
+) -> None:
+    query = db.query(model).filter(model.nombre == nombre)
+    if exclude_id is not None:
+        query = query.filter(model.id != exclude_id)
+    if query.first():
+        raise HTTPException(status_code=409, detail=detalle_conflicto)
 
 def convertir_a_base(
     db: Session,
@@ -140,9 +209,7 @@ def crear_ingrediente(
     cantidad_compra: float,
     unidad: str
 ) -> Ingrediente:
-    u = db.query(Unidad).filter(Unidad.codigo == unidad).first()
-    if not u:
-        raise HTTPException(status_code=400, detail=f"Unidad no soportada: {unidad}")
+    u = obtener_unidad_o_400(db, unidad)
 
     ing = Ingrediente(
         nombre=nombre,
@@ -151,8 +218,7 @@ def crear_ingrediente(
         cantidad_compra_base=cantidad_compra * u.factor_a_base
     )
     db.add(ing)
-    db.commit()
-    db.refresh(ing)
+    _guardar_y_refrescar(db, ing)
     return ing
 
 
@@ -164,17 +230,18 @@ def actualizar_ingrediente(
     cantidad_compra: float,
     unidad: str
 ) -> Ingrediente:
-    ing = db.query(Ingrediente).filter(Ingrediente.id == ingrediente_id).first()
-    if not ing:
-        raise HTTPException(status_code=404, detail="Ingrediente no encontrado")
+    ing = obtener_ingrediente_o_404(db, ingrediente_id)
 
     if nombre != ing.nombre:
-        if db.query(Ingrediente).filter(Ingrediente.nombre == nombre).first():
-            raise HTTPException(status_code=409, detail="Ya existe otro ingrediente con ese nombre")
+        _validar_nombre_unico(
+            db,
+            Ingrediente,
+            nombre,
+            "Ya existe otro ingrediente con ese nombre",
+            exclude_id=ingrediente_id,
+        )
 
-    u = db.query(Unidad).filter(Unidad.codigo == unidad).first()
-    if not u:
-        raise HTTPException(status_code=400, detail=f"Unidad no soportada: {unidad}")
+    u = obtener_unidad_o_400(db, unidad)
 
     if ing.items and u.base != ing.unidad_base:
         raise HTTPException(
@@ -190,8 +257,7 @@ def actualizar_ingrediente(
     ing.costo_compra = costo_compra
     ing.cantidad_compra_base = cantidad_compra * u.factor_a_base
 
-    db.commit()
-    db.refresh(ing)
+    _guardar_y_refrescar(db, ing)
     return ing
 
 
@@ -200,24 +266,25 @@ def actualizar_ingrediente(
 # ─────────────────────────────────────────
 
 def crear_receta(db: Session, nombre: str, porciones: int) -> Receta:
-    if db.query(Receta).filter(Receta.nombre == nombre).first():
-        raise HTTPException(status_code=409, detail="Ya existe otra receta con ese nombre")
+    _validar_nombre_unico(db, Receta, nombre, "Ya existe otra receta con ese nombre")
 
     r = Receta(nombre=nombre, porciones=porciones, unidades_producidas=porciones)
     db.add(r)
-    db.commit()
-    db.refresh(r)
+    _guardar_y_refrescar(db, r)
     return r
 
 
 def actualizar_receta(db: Session, receta_id: int, nombre: str, porciones: int) -> Receta:
-    r = db.query(Receta).filter(Receta.id == receta_id).first()
-    if not r:
-        raise HTTPException(status_code=404, detail="Receta no encontrada")  # ✅ typo corregido
+    r = obtener_receta_o_404(db, receta_id)
 
     if nombre != r.nombre:
-        if db.query(Receta).filter(Receta.nombre == nombre).first():
-            raise HTTPException(status_code=409, detail="Ya existe otra receta con ese nombre")
+        _validar_nombre_unico(
+            db,
+            Receta,
+            nombre,
+            "Ya existe otra receta con ese nombre",
+            exclude_id=receta_id,
+        )
 
     sincronizar_unidades = r.unidades_producidas == r.porciones
 
@@ -225,9 +292,47 @@ def actualizar_receta(db: Session, receta_id: int, nombre: str, porciones: int) 
     r.porciones = porciones
     if sincronizar_unidades:
         r.unidades_producidas = porciones
-    db.commit()
-    db.refresh(r)
+    _guardar_y_refrescar(db, r)
     return r
+
+
+def actualizar_config_receta(
+    db: Session,
+    receta_id: int,
+    nombre: str,
+    porciones: int,
+    unidades_producidas: int,
+    tiempo_trabajo_min: float,
+    empaque_por_unidad: float,
+    transporte_por_lote: float,
+    margen_markup: float,
+    empleado_id: int | None,
+) -> Receta:
+    receta = obtener_receta_o_404(db, receta_id)
+
+    if nombre != receta.nombre:
+        _validar_nombre_unico(
+            db,
+            Receta,
+            nombre,
+            "Ya existe otra receta con ese nombre",
+            exclude_id=receta_id,
+        )
+
+    if empleado_id is not None:
+        obtener_empleado_o_404(db, empleado_id)
+
+    receta.nombre = nombre
+    receta.porciones = porciones
+    receta.unidades_producidas = unidades_producidas
+    receta.tiempo_trabajo_min = tiempo_trabajo_min
+    receta.empaque_por_unidad = empaque_por_unidad
+    receta.transporte_por_lote = transporte_por_lote
+    receta.margen_markup = margen_markup
+    receta.empleado_id = empleado_id
+
+    _guardar_y_refrescar(db, receta)
+    return receta
 
 
 # ─────────────────────────────────────────
@@ -241,13 +346,8 @@ def agregar_items_receta(
     cantidad: float,
     unidad: str
 ) -> RecetaItem:
-    receta = db.query(Receta).filter(Receta.id == receta_id).first()
-    if not receta:
-        raise HTTPException(status_code=404, detail=f"Receta no encontrada: {receta_id}")
-
-    ing = db.query(Ingrediente).filter(Ingrediente.id == ingrediente_id).first()
-    if not ing:
-        raise HTTPException(status_code=404, detail=f"Ingrediente no encontrado: {ingrediente_id}")
+    obtener_receta_o_404(db, receta_id)
+    ing = obtener_ingrediente_o_404(db, ingrediente_id)
 
     cantidad_base = convertir_a_base(db, cantidad, unidad, ing.unidad_base, ingrediente=ing)
 
@@ -280,12 +380,7 @@ def actualizar_item_receta(
     cantidad: float,
     unidad: str
 ) -> RecetaItem:
-    item = db.query(RecetaItem).filter(
-        RecetaItem.id == item_id,
-        RecetaItem.receta_id == receta_id
-    ).first()
-    if not item:
-        raise HTTPException(status_code=404, detail="Item no encontrado")
+    item = obtener_item_receta_o_404(db, receta_id, item_id)
 
     cantidad_base = convertir_a_base(
         db,
@@ -299,9 +394,14 @@ def actualizar_item_receta(
     item.unidad_original = unidad
     item.cantidad_original = cantidad
 
-    db.commit()
-    db.refresh(item)
+    _guardar_y_refrescar(db, item)
     return item
+
+
+def borrar_item_receta(db: Session, receta_id: int, item_id: int) -> None:
+    item = obtener_item_receta_o_404(db, receta_id, item_id)
+    db.delete(item)
+    db.commit()
 
 
 # ─────────────────────────────────────────
@@ -309,9 +409,7 @@ def actualizar_item_receta(
 # ─────────────────────────────────────────
 
 def costo_receta(db: Session, receta_id: int) -> dict:
-    receta = db.query(Receta).filter(Receta.id == receta_id).first()
-    if not receta:
-        raise HTTPException(status_code=404, detail=f"Receta no encontrada: {receta_id}")
+    receta = obtener_receta_o_404(db, receta_id)
 
     total = calcular_costo_ingredientes_receta(receta)
 
@@ -325,9 +423,7 @@ def costo_receta(db: Session, receta_id: int) -> dict:
 
 
 def resumen_negocio_receta(db: Session, receta_id: int) -> dict:
-    receta = db.query(Receta).filter(Receta.id == receta_id).first()
-    if not receta:
-        raise HTTPException(status_code=404, detail=f"Receta no encontrada: {receta_id}")
+    receta = obtener_receta_o_404(db, receta_id)
 
     # 1) Costo de ingredientes — sin doble query, calculado directo
     costo_ingredientes = calcular_costo_ingredientes_receta(receta)
@@ -383,3 +479,8 @@ def resumen_negocio_receta(db: Session, receta_id: int) -> dict:
         "margen_real": round(margen_real, 4),
         "markup_real": round(markup_real, 4),
     }
+
+
+def diagnostico_receta(db: Session, receta_id: int) -> dict:
+    receta = obtener_receta_o_404(db, receta_id)
+    return diagnostico_configuracion_receta(receta)
