@@ -1,18 +1,11 @@
-import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from dotenv import load_dotenv
+from .settings import settings
 
-load_dotenv()
-
-# Lee la URL desde variables de entorno y usa SQLite local como respaldo.
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./repostreria.db")
-
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
 
 engine = create_engine(
-    DATABASE_URL,
+    settings.database_url,
     connect_args=connect_args,
     pool_pre_ping=True,
 )
