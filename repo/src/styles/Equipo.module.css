@@ -1,0 +1,202 @@
+.page {
+  max-width: 760px;
+  margin:    0 auto;
+  padding:   28px 20px 80px;
+}
+
+.header        { margin-bottom: 24px; }
+.title         { font-family: var(--font-display); font-size: 32px; letter-spacing: -.3px; margin-bottom: 6px; }
+.subtitle      { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+/* ── STATS ── */
+.stats {
+  display:   flex;
+  gap:       10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.stat {
+  flex:          1;
+  min-width:     120px;
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: 14px;
+  padding:       14px 16px;
+  text-align:    center;
+  animation:     fadeUp .3s ease both;
+}
+.stat:nth-child(2) { animation-delay: .05s; }
+.stat:nth-child(3) { animation-delay: .10s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.statNum   { font-family: var(--font-display); font-size: 26px; letter-spacing: -.3px; margin-bottom: 2px; }
+.statLabel { font-size: 12px; color: var(--muted); }
+
+/* ── GRID ── */
+.grid {
+  display:               grid;
+  grid-template-columns: 320px 1fr;
+  gap:                   16px;
+  align-items:           start;
+}
+@media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+/* ── CARD ── */
+.card {
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: var(--radius);
+  padding:       18px 20px;
+}
+
+.cardTitle { font-family: var(--font-display); font-size: 18px; letter-spacing: -.1px; margin-bottom: 4px; }
+.cardSub   { font-size: 12px; color: var(--hint); margin-bottom: 16px; line-height: 1.5; }
+
+/* ── FORM ── */
+.fieldGroup    { margin-bottom: 14px; }
+.fieldQuestion { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.fieldHint     { font-size: 12px; color: var(--hint); margin-bottom: 6px; }
+
+.input {
+  width:         100%;
+  padding:       10px 13px;
+  border:        1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background:    var(--bg);
+  color:         var(--text);
+  font-family:   var(--font-body);
+  font-size:     14px;
+  outline:       none;
+  transition:    border-color .15s, box-shadow .15s;
+}
+.input:focus {
+  border-color: var(--border-focus);
+  box-shadow:   0 0 0 3px rgba(245,200,66,.10);
+}
+.input::placeholder { color: var(--hint); }
+
+.inputRow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 480px) { .inputRow { grid-template-columns: 1fr; } }
+
+/* Toggle activo */
+.toggleWrap {
+  display:       flex;
+  align-items:   center;
+  gap:           12px;
+  padding:       11px 13px;
+  border:        1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background:    var(--bg);
+  cursor:        pointer;
+  user-select:   none;
+  transition:    border-color .15s;
+}
+.toggleWrap.on { border-color: var(--accent); background: var(--accent-bg); }
+
+.toggle {
+  width:         38px;
+  height:        20px;
+  border-radius: 99px;
+  background:    var(--border);
+  position:      relative;
+  transition:    background .2s;
+  flex-shrink:   0;
+}
+.toggle.on { background: var(--accent); }
+.toggle::after {
+  content:       '';
+  position:      absolute;
+  width:         14px;
+  height:        14px;
+  border-radius: 50%;
+  background:    #fff;
+  top:           3px;
+  left:          3px;
+  transition:    transform .2s;
+  box-shadow:    0 1px 3px rgba(0,0,0,.15);
+}
+.toggle.on::after { transform: translateX(18px); }
+.toggleLabel    { font-size: 14px; font-weight: 500; }
+.toggleSublabel { font-size: 12px; color: var(--hint); }
+
+/* Botón guardar */
+.btnPrimary {
+  width:         100%;
+  padding:       12px;
+  background:    var(--accent);
+  color:         var(--accent-text);
+  border:        none;
+  border-radius: var(--radius-sm);
+  font-family:   var(--font-body);
+  font-size:     14px;
+  font-weight:   700;
+  cursor:        pointer;
+  transition:    opacity .15s, transform .06s;
+  margin-top:    4px;
+}
+.btnPrimary:hover    { opacity: .88; }
+.btnPrimary:active   { transform: translateY(1px); }
+.btnPrimary:disabled { opacity: .38; cursor: not-allowed; }
+
+/* ── LISTA DE EMPLEADOS ── */
+.empList { display: grid; gap: 10px; }
+
+.empCard {
+  background:    var(--bg);
+  border:        1px solid var(--border);
+  border-radius: 14px;
+  padding:       13px 16px;
+  display:       flex;
+  align-items:   center;
+  gap:           12px;
+  transition:    border-color .15s;
+  animation:     fadeUp .25s ease both;
+}
+.empCard:hover { border-color: #ccc7bc; }
+
+.empAvatar {
+  width:         42px;
+  height:        42px;
+  border-radius: 50%;
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  display:       grid;
+  place-items:   center;
+  font-family:   var(--font-display);
+  font-size:     14px;
+  color:         var(--muted);
+  flex-shrink:   0;
+}
+
+.empInfo    { flex: 1; min-width: 0; }
+.empNombre  { font-size: 14px; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.empDetalle { font-size: 12px; color: var(--hint); }
+
+.empSalario      { text-align: right; flex-shrink: 0; }
+.empSalarioValor { font-family: var(--font-display); font-size: 18px; letter-spacing: -.2px; color: var(--accent-text); }
+.empSalarioLabel { font-size: 11px; color: var(--hint); margin-top: 1px; }
+
+.badgeActivo   { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.badgeInactivo { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; background: var(--bg); color: var(--hint); border: 1px solid var(--border); }
+
+/* ── EMPTY / ERROR ── */
+.stateRow  { padding: 28px; text-align: center; color: var(--hint); font-size: 13px; line-height: 1.7; }
+.stateIcon { font-size: 32px; display: block; margin-bottom: 8px; }
+.errorMsg  { padding: 16px; color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); border-radius: var(--radius-sm); font-size: 13px; text-align: center; }
+
+/* ── TIP ── */
+.tip {
+  background:    var(--accent-bg);
+  border:        1px solid rgba(245,200,66,.3);
+  border-radius: var(--radius-sm);
+  padding:       10px 14px;
+  font-size:     12px;
+  color:         var(--accent-text);
+  line-height:   1.6;
+  margin-top:    14px;
+}

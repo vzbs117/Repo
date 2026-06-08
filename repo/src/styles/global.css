@@ -1,0 +1,47 @@
+/* ── RESET ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { font-size: 16px; }
+
+body {
+  background:   var(--bg);
+  color:        var(--text);
+  font-family:  var(--font-body);
+  font-size:    15px;
+  line-height:  1.5;
+  min-height:   100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── TIPOGRAFÍA ── */
+h1, h2, h3 { font-family: var(--font-display); }
+
+/* ── INPUTS Y SELECTS GLOBALES ── */
+input, select, textarea {
+  font-family: var(--font-body);
+  font-size:   15px;
+  color:       var(--text);
+}
+
+input::placeholder,
+textarea::placeholder { color: var(--hint); }
+
+/* ── LINKS ── */
+a { color: inherit; text-decoration: none; }
+
+/* ── SCROLLBAR SUTIL ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── ANIMACIÓN GLOBAL ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp .25s ease both; }

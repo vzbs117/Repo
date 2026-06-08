@@ -1,0 +1,44 @@
+.wrap  { display: grid; gap: 10px; }
+
+.grupo {}
+
+.grupoLabel {
+  font-size:      10px;
+  font-weight:    700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color:          var(--hint);
+  margin-bottom:  6px;
+}
+
+.chips {
+  display:   flex;
+  flex-wrap: wrap;
+  gap:       6px;
+}
+
+.chip {
+  padding:       6px 14px;
+  border-radius: 99px;
+  border:        1px solid var(--border);
+  background:    transparent;
+  color:         var(--muted);
+  font-family:   var(--font-body);
+  font-size:     13px;
+  font-weight:   500;
+  cursor:        pointer;
+  transition:    all .15s;
+  white-space:   nowrap;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  color:        var(--accent-text);
+}
+
+.chip.active {
+  background:   var(--accent-bg);
+  border-color: var(--accent);
+  color:        var(--accent-text);
+  font-weight:  600;
+}
