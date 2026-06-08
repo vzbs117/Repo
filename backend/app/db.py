@@ -1,6 +1,9 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
+
+load_dotenv()
 
 #le la Url desde la cariable de entorno; si no exixste una local , Usa SQLite local
 Database_URL= os.getenv("DATABASE_URL", "sqlite:///./repostreria.db")

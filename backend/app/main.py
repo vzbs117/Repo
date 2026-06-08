@@ -54,6 +54,7 @@ app = FastAPI(
 ALLOWED_ORIGINS = [
     "http://localhost:3000",    # desarrollo frontend
     "http://localhost:5173",   # Vite dev server
+    "http://127.0.0.1:5173",   # Vite dev server por IP
     "http://127.0.0.1:5501",   # para pruebas con Swagger UI
     # "https://tu-dominio.com", # ← agrega tu dominio de producción aquí
 ]

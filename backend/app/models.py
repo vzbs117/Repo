@@ -64,7 +64,7 @@ class RecetaItem(Base):
     __tablename__ = "receta_items"
 
     id = Column(Integer, primary_key=True, index=True)
-    receta_id = Column(Integer, ForeignKey("recetas.id"), nullable=False, index=True)
+    receta_id = Column(Integer, ForeignKey("recetas.id"), nullable=False)
     ingrediente_id = Column(Integer, ForeignKey("ingredientes.id"), nullable=False, index=True)
 
     cantidad_usada_base = Column(Float, nullable=False)
