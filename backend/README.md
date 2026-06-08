@@ -9,6 +9,53 @@ API en FastAPI para administrar ingredientes, recetas, empleados y costos de pro
 
 ## Instalacion limpia
 
+La forma recomendada es con el instalador.
+
+En macOS o Linux:
+
+```bash
+bash install_backend.sh
+```
+
+En Windows con PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install_backend.ps1
+```
+
+O con el wrapper `.bat`:
+
+```bat
+install_backend.bat
+```
+
+Ese comando:
+
+- verifica que exista `python3`
+- valida que la version sea compatible
+- crea `.venv` si hace falta
+- instala dependencias
+- crea `.env` desde `.env.example` si no existe
+- ejecuta las pruebas del backend
+
+Opciones utiles:
+
+```bash
+bash install_backend.sh --check-only
+bash install_backend.sh --skip-tests
+bash install_backend.sh --run
+```
+
+Equivalentes en Windows:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -CheckOnly
+powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -SkipTests
+powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -Run
+```
+
+Si prefieres hacerlo manualmente:
+
 1. Crear entorno virtual:
 
 ```bash
