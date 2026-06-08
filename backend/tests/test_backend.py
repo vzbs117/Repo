@@ -13,9 +13,14 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app import crud
 from app.db import Base
-from app.main import root
+from app.main import (
+    actualizar_config_receta,
+    diagnostico_receta,
+    listar_inconsistencias_configuracion,
+    root,
+)
 from app.models import Empleado
-from app.schemas import IngredienteCreate, RecetaItemCreate
+from app.schemas import IngredienteCreate, RecetaConfigUpdate, RecetaItemCreate, RecetasCreate
 from app.seed import seed_unidades
 
 
@@ -81,6 +86,29 @@ class BackendTestCase(unittest.TestCase):
         self.assertEqual(actualizado.cantidad_compra_base, 500.0)
         self.assertAlmostEqual(crud.calcular_costo_unitario(actualizado), 0.09)
 
+    def test_no_permite_cambiar_familia_unidad_si_ingrediente_ya_se_usa(self):
+        ingrediente = crud.crear_ingrediente(
+            self.db,
+            nombre="Mermelada",
+            costo_compra=50.0,
+            cantidad_compra=1.0,
+            unidad="kg",
+        )
+        receta = crud.crear_receta(self.db, "Pay", 6)
+        crud.agregar_items_receta(self.db, receta.id, ingrediente.id, 150.0, "g")
+
+        with self.assertRaises(HTTPException) as ctx:
+            crud.actualizar_ingrediente(
+                self.db,
+                ingrediente_id=ingrediente.id,
+                nombre="Mermelada",
+                costo_compra=50.0,
+                cantidad_compra=1.0,
+                unidad="l",
+            )
+
+        self.assertEqual(ctx.exception.status_code, 409)
+
     def test_convertir_a_base_rechaza_unidad_incompatible(self):
         with self.assertRaises(HTTPException) as ctx:
             crud.convertir_a_base(
@@ -91,6 +119,44 @@ class BackendTestCase(unittest.TestCase):
             )
 
         self.assertEqual(ctx.exception.status_code, 400)
+
+    def test_convertir_a_base_acepta_royal_en_cucharadita(self):
+        royal = crud.crear_ingrediente(
+            self.db,
+            nombre="royal",
+            costo_compra=45.5,
+            cantidad_compra=250.0,
+            unidad="g",
+        )
+
+        gramos = crud.convertir_a_base(
+            self.db,
+            cantidad=1.0,
+            unidad="tsp",
+            unidad_base_esperada="g",
+            ingrediente=royal,
+        )
+
+        self.assertEqual(gramos, 4.0)
+
+    def test_convertir_a_base_acepta_sal_en_pizca(self):
+        sal = crud.crear_ingrediente(
+            self.db,
+            nombre="Sal",
+            costo_compra=28.0,
+            cantidad_compra=1000.0,
+            unidad="g",
+        )
+
+        gramos = crud.convertir_a_base(
+            self.db,
+            cantidad=2.0,
+            unidad="pizca",
+            unidad_base_esperada="g",
+            ingrediente=sal,
+        )
+
+        self.assertEqual(gramos, 0.72)
 
     def test_agregar_item_receta_convierte_cantidad_usada_a_base(self):
         ingrediente = crud.crear_ingrediente(
@@ -193,6 +259,15 @@ class BackendTestCase(unittest.TestCase):
 
         self.assertEqual(actualizada.nombre, "Brownie especial")
         self.assertEqual(actualizada.porciones, 12)
+        self.assertEqual(actualizada.unidades_producidas, 12)
+
+    def test_crear_receta_duplicada_regresa_conflicto_controlado(self):
+        crud.crear_receta(self.db, "Carlota", 8)
+
+        with self.assertRaises(HTTPException) as ctx:
+            crud.crear_receta(self.db, "Carlota", 10)
+
+        self.assertEqual(ctx.exception.status_code, 409)
 
     def test_costo_receta_calcula_total_y_por_porcion(self):
         ingrediente = crud.crear_ingrediente(
@@ -262,6 +337,60 @@ class BackendTestCase(unittest.TestCase):
         self.assertEqual(resumen["costo_mano_obra"], 0.0)
         self.assertEqual(resumen["costo_transporte"], 10.0)
 
+    def test_diagnostico_receta_detecta_diferencia_entre_porciones_y_unidades(self):
+        ingrediente = crud.crear_ingrediente(
+            self.db,
+            nombre="Queso crema",
+            costo_compra=90.0,
+            cantidad_compra=1.0,
+            unidad="kg",
+        )
+        receta = crud.crear_receta(self.db, "Cheesecake", 12)
+        receta.unidades_producidas = 1
+        self.db.commit()
+        crud.agregar_items_receta(self.db, receta.id, ingrediente.id, 300.0, "g")
+
+        diagnostico = diagnostico_receta(receta.id, self.db)
+
+        self.assertFalse(diagnostico["configuracion_consistente"])
+        self.assertTrue(diagnostico["requiere_revision"])
+        self.assertEqual(diagnostico["costo_ingredientes_total"], 27.0)
+        self.assertEqual(diagnostico["costo_ingredientes_por_porcion"], 2.25)
+        self.assertEqual(diagnostico["costo_ingredientes_por_unidad_producida"], 27.0)
+
+    def test_listado_inconsistencias_solo_devuelve_recetas_con_datos_desalineados(self):
+        consistente = crud.crear_receta(self.db, "Gelatina", 8)
+        inconsistente = crud.crear_receta(self.db, "Pastel individual", 10)
+        inconsistente.unidades_producidas = 2
+        self.db.commit()
+
+        resultados = listar_inconsistencias_configuracion(self.db)
+
+        self.assertEqual(len(resultados), 1)
+        self.assertEqual(resultados[0]["receta_id"], inconsistente.id)
+        self.assertNotEqual(resultados[0]["receta_id"], consistente.id)
+
+    def test_actualizar_config_receta_valida_empleado_existente(self):
+        receta = crud.crear_receta(self.db, "Rosca", 10)
+
+        with self.assertRaises(HTTPException) as ctx:
+            actualizar_config_receta(
+                receta.id,
+                RecetaConfigUpdate(
+                    nombre="Rosca",
+                    porciones=10,
+                    unidades_producidas=10,
+                    tiempo_trabajo_min=60.0,
+                    empaque_por_unidad=1.0,
+                    transporte_por_lote=10.0,
+                    margen_markup=0.3,
+                    empleado_id=999,
+                ),
+                self.db,
+            )
+
+        self.assertEqual(ctx.exception.status_code, 404)
+
     def test_schema_normaliza_unidad_y_rechaza_unidad_invalida(self):
         data = IngredienteCreate(
             nombre="Vainilla",
@@ -271,12 +400,46 @@ class BackendTestCase(unittest.TestCase):
         )
         self.assertEqual(data.unidad, "kg")
 
+        data_cup = IngredienteCreate(
+            nombre="Leche evaporada",
+            costo_compra=25.0,
+            cantidad_compra=1.0,
+            unidad=" cup ",
+        )
+        self.assertEqual(data_cup.unidad, "cup")
+
+        receta_item_cucharadita = RecetaItemCreate(
+            ingrediente_id=1,
+            cantidad=1.0,
+            unidad="cucharadita",
+        )
+        self.assertEqual(receta_item_cucharadita.unidad, "tsp")
+
+        receta_item_pizca = RecetaItemCreate(
+            ingrediente_id=1,
+            cantidad=1.0,
+            unidad="pizcas",
+        )
+        self.assertEqual(receta_item_pizca.unidad, "pizca")
+
         with self.assertRaises(ValidationError):
             RecetaItemCreate(
                 ingrediente_id=1,
                 cantidad=2.0,
                 unidad="metros",
             )
+
+    def test_schema_rechaza_nombres_vacios_tras_strip(self):
+        with self.assertRaises(ValidationError):
+            IngredienteCreate(
+                nombre="   ",
+                costo_compra=10.0,
+                cantidad_compra=1.0,
+                unidad="kg",
+            )
+
+        with self.assertRaises(ValidationError):
+            RecetasCreate(nombre="   ", porciones=4)
 
     def test_seed_unidades_inserta_catalogo_esperado(self):
         self.assertEqual(self.db.query(crud.Unidad).count(), 11)

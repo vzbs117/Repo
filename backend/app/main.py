@@ -1,5 +1,6 @@
 # main.py
 from contextlib import asynccontextmanager
+import os
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -51,17 +52,27 @@ app = FastAPI(
 # CORS — corregido para producción
 # ─────────────────────────────────────────
 
-ALLOWED_ORIGINS = [
+DEFAULT_ALLOWED_ORIGINS = [
     "http://localhost:3000",    # desarrollo frontend
     "http://localhost:5173",   # Vite dev server
+    "http://localhost:5174",   # Vite dev server alterno
     "http://127.0.0.1:5173",   # Vite dev server por IP
+    "http://127.0.0.1:5174",   # Vite dev server alterno por IP
     "http://127.0.0.1:5501",   # para pruebas con Swagger UI
     # "https://tu-dominio.com", # ← agrega tu dominio de producción aquí
 ]
 
+
+def _load_allowed_origins() -> list[str]:
+    raw_origins = os.getenv("BACKEND_CORS_ORIGINS", "").strip()
+    if not raw_origins:
+        return DEFAULT_ALLOWED_ORIGINS
+    origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+    return origins or DEFAULT_ALLOWED_ORIGINS
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,   # ✅ ya no es "*"
+    allow_origins=_load_allowed_origins(),   # ✅ ya no es "*"
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -199,6 +210,16 @@ def actualizar_config_receta(
     if not r:
         raise HTTPException(status_code=404, detail="Receta no encontrada")
 
+    if data.nombre != r.nombre:
+        receta_existente = db.query(Receta).filter(Receta.nombre == data.nombre).first()
+        if receta_existente:
+            raise HTTPException(status_code=409, detail="Ya existe otra receta con ese nombre")
+
+    if data.empleado_id is not None:
+        empleado = db.query(Empleado).filter(Empleado.id == data.empleado_id).first()
+        if not empleado:
+            raise HTTPException(status_code=404, detail="Empleado no encontrado")
+
     r.nombre = data.nombre
     r.porciones = data.porciones
     r.unidades_producidas = data.unidades_producidas
@@ -269,6 +290,24 @@ def obtener_costo(receta_id: int, db: Session = Depends(get_db)):
 @app.get("/recetas/{receta_id}/resumen", tags=["Costos"])
 def resumen_negocio(receta_id: int, db: Session = Depends(get_db)):
     return crud.resumen_negocio_receta(db, receta_id)
+
+
+@app.get("/recetas/{receta_id}/diagnostico", tags=["Recetas"])
+def diagnostico_receta(receta_id: int, db: Session = Depends(get_db)):
+    receta = (
+        db.query(Receta)
+        .options(joinedload(Receta.items).joinedload(RecetaItem.ingrediente))
+        .filter(Receta.id == receta_id)
+        .first()
+    )
+    if not receta:
+        raise HTTPException(status_code=404, detail="Receta no encontrada")
+    return crud.diagnostico_configuracion_receta(receta)
+
+
+@app.get("/recetas/inconsistencias/configuracion", tags=["Recetas"])
+def listar_inconsistencias_configuracion(db: Session = Depends(get_db)):
+    return crud.listar_recetas_con_configuracion_inconsistente(db)
 
 
 # ─────────────────────────────────────────

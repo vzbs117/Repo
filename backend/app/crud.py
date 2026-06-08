@@ -1,4 +1,6 @@
 # crud.py
+import unicodedata
+
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
@@ -9,16 +11,70 @@ from .models import Unidad, Ingrediente, Receta, RecetaItem, Empleado
 # UTILIDADES
 # ─────────────────────────────────────────
 
+EQUIVALENCIAS_CULINARIAS_GRAMOS = {
+    "royal": {
+        "tsp": 4.0,
+    },
+    "sal": {
+        "pizca": 0.36,
+        "tsp": 6.0,
+    },
+}
+
+
+def _normalizar_clave_ingrediente(nombre: str) -> str:
+    nombre = unicodedata.normalize("NFKD", nombre.strip().lower())
+    return "".join(ch for ch in nombre if not unicodedata.combining(ch))
+
+
+def _convertir_unidad_culinaria_a_base(
+    ingrediente: Ingrediente | None,
+    cantidad: float,
+    unidad: str,
+    unidad_base_esperada: str,
+) -> float | None:
+    if not ingrediente or unidad_base_esperada != "g":
+        return None
+
+    equivalencias = EQUIVALENCIAS_CULINARIAS_GRAMOS.get(
+        _normalizar_clave_ingrediente(ingrediente.nombre),
+    )
+    if not equivalencias:
+        return None
+
+    gramos_por_unidad = equivalencias.get(unidad)
+    if gramos_por_unidad is None:
+        return None
+
+    return cantidad * gramos_por_unidad
+
 def convertir_a_base(
     db: Session,
     cantidad: float,
     unidad: str,
-    unidad_base_esperada: str
+    unidad_base_esperada: str,
+    ingrediente: Ingrediente | None = None,
 ) -> float:
     u = db.query(Unidad).filter(Unidad.codigo == unidad).first()
     if not u:
+        conversion_culinaria = _convertir_unidad_culinaria_a_base(
+            ingrediente,
+            cantidad,
+            unidad,
+            unidad_base_esperada,
+        )
+        if conversion_culinaria is not None:
+            return conversion_culinaria
         raise HTTPException(status_code=400, detail=f"Unidad no soportada: {unidad}")
     if u.base != unidad_base_esperada:
+        conversion_culinaria = _convertir_unidad_culinaria_a_base(
+            ingrediente,
+            cantidad,
+            unidad,
+            unidad_base_esperada,
+        )
+        if conversion_culinaria is not None:
+            return conversion_culinaria
         raise HTTPException(
             status_code=400,
             detail=f"Unidad '{unidad}' no es compatible con la unidad base esperada: '{unidad_base_esperada}'"
@@ -31,6 +87,46 @@ def calcular_costo_unitario(ing: Ingrediente) -> float:
     if ing.cantidad_compra_base <= 0:
         return 0.0
     return ing.costo_compra / ing.cantidad_compra_base
+
+
+def calcular_costo_ingredientes_receta(receta: Receta) -> float:
+    return sum(
+        calcular_costo_unitario(item.ingrediente) * item.cantidad_usada_base
+        for item in receta.items
+    )
+
+
+def diagnostico_configuracion_receta(receta: Receta) -> dict:
+    costo_ingredientes = calcular_costo_ingredientes_receta(receta)
+    porciones = int(receta.porciones or 1)
+    unidades = int(receta.unidades_producidas or porciones or 1)
+    inconsistente = porciones != unidades
+
+    return {
+        "receta_id": receta.id,
+        "nombre": receta.nombre,
+        "porciones": porciones,
+        "unidades_producidas": unidades,
+        "configuracion_consistente": not inconsistente,
+        "motivo": (
+            "porciones y unidades_producidas no coinciden"
+            if inconsistente
+            else "configuracion consistente"
+        ),
+        "costo_ingredientes_total": round(costo_ingredientes, 2),
+        "costo_ingredientes_por_porcion": round(costo_ingredientes / porciones, 4),
+        "costo_ingredientes_por_unidad_producida": round(costo_ingredientes / unidades, 4),
+        "requiere_revision": inconsistente,
+    }
+
+
+def listar_recetas_con_configuracion_inconsistente(db: Session) -> list[dict]:
+    recetas = db.query(Receta).order_by(Receta.id.asc()).all()
+    return [
+        diagnostico_configuracion_receta(receta)
+        for receta in recetas
+        if receta.porciones != receta.unidades_producidas
+    ]
 
 
 # ─────────────────────────────────────────
@@ -80,6 +176,15 @@ def actualizar_ingrediente(
     if not u:
         raise HTTPException(status_code=400, detail=f"Unidad no soportada: {unidad}")
 
+    if ing.items and u.base != ing.unidad_base:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "No puedes cambiar la familia de unidad de un ingrediente que ya "
+                "se usa en recetas. Crea un ingrediente nuevo o elimina primero sus usos."
+            ),
+        )
+
     ing.nombre = nombre
     ing.unidad_base = u.base
     ing.costo_compra = costo_compra
@@ -95,7 +200,10 @@ def actualizar_ingrediente(
 # ─────────────────────────────────────────
 
 def crear_receta(db: Session, nombre: str, porciones: int) -> Receta:
-    r = Receta(nombre=nombre, porciones=porciones)
+    if db.query(Receta).filter(Receta.nombre == nombre).first():
+        raise HTTPException(status_code=409, detail="Ya existe otra receta con ese nombre")
+
+    r = Receta(nombre=nombre, porciones=porciones, unidades_producidas=porciones)
     db.add(r)
     db.commit()
     db.refresh(r)
@@ -111,8 +219,12 @@ def actualizar_receta(db: Session, receta_id: int, nombre: str, porciones: int) 
         if db.query(Receta).filter(Receta.nombre == nombre).first():
             raise HTTPException(status_code=409, detail="Ya existe otra receta con ese nombre")
 
+    sincronizar_unidades = r.unidades_producidas == r.porciones
+
     r.nombre = nombre
     r.porciones = porciones
+    if sincronizar_unidades:
+        r.unidades_producidas = porciones
     db.commit()
     db.refresh(r)
     return r
@@ -137,7 +249,7 @@ def agregar_items_receta(
     if not ing:
         raise HTTPException(status_code=404, detail=f"Ingrediente no encontrado: {ingrediente_id}")
 
-    cantidad_base = convertir_a_base(db, cantidad, unidad, ing.unidad_base)
+    cantidad_base = convertir_a_base(db, cantidad, unidad, ing.unidad_base, ingrediente=ing)
 
     item = RecetaItem(
         receta_id=receta_id,
@@ -175,7 +287,13 @@ def actualizar_item_receta(
     if not item:
         raise HTTPException(status_code=404, detail="Item no encontrado")
 
-    cantidad_base = convertir_a_base(db, cantidad, unidad, item.ingrediente.unidad_base)
+    cantidad_base = convertir_a_base(
+        db,
+        cantidad,
+        unidad,
+        item.ingrediente.unidad_base,
+        ingrediente=item.ingrediente,
+    )
 
     item.cantidad_usada_base = cantidad_base
     item.unidad_original = unidad
@@ -195,10 +313,7 @@ def costo_receta(db: Session, receta_id: int) -> dict:
     if not receta:
         raise HTTPException(status_code=404, detail=f"Receta no encontrada: {receta_id}")
 
-    total = sum(
-        calcular_costo_unitario(item.ingrediente) * item.cantidad_usada_base
-        for item in receta.items
-    )
+    total = calcular_costo_ingredientes_receta(receta)
 
     porciones = receta.porciones or 1
     return {
@@ -215,10 +330,7 @@ def resumen_negocio_receta(db: Session, receta_id: int) -> dict:
         raise HTTPException(status_code=404, detail=f"Receta no encontrada: {receta_id}")
 
     # 1) Costo de ingredientes — sin doble query, calculado directo
-    costo_ingredientes = sum(
-        calcular_costo_unitario(item.ingrediente) * item.cantidad_usada_base
-        for item in receta.items
-    )
+    costo_ingredientes = calcular_costo_ingredientes_receta(receta)
 
     # 2) Unidades producidas
     unidades = int(receta.unidades_producidas or receta.porciones or 1)

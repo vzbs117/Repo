@@ -1,9 +1,27 @@
 # schemas.py
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from typing import Literal
 
 # Unidades válidas del sistema
-UNIDADES_VALIDAS = {"g", "kg", "ml", "l", "tsp", "tbsp", "pz"}
+UNIDADES_COMPRA_VALIDAS = {"g", "kg", "oz", "lb", "ml", "l", "tsp", "tbsp", "cup", "fl_oz", "pz"}
+UNIDADES_RECETA_VALIDAS = UNIDADES_COMPRA_VALIDAS | {"pizca"}
+ALIASES_UNIDAD = {
+    "cucharadita": "tsp",
+    "cucharaditas": "tsp",
+    "cdta": "tsp",
+    "cdita": "tsp",
+    "pizcas": "pizca",
+}
+
+
+def _normalizar_nombre(v: str) -> str:
+    v = v.strip()
+    if not v:
+        raise ValueError("El nombre no puede estar vacio")
+    return v
+
+
+def _normalizar_unidad(v: str) -> str:
+    return ALIASES_UNIDAD.get(v.strip().lower(), v.strip().lower())
 
 
 # ─────────────────────────────────────────
@@ -19,14 +37,14 @@ class IngredienteCreate(BaseModel):
     @field_validator("nombre")
     @classmethod
     def nombre_no_vacio(cls, v: str) -> str:
-        return v.strip()
+        return _normalizar_nombre(v)
 
     @field_validator("unidad")
     @classmethod
     def unidad_valida(cls, v: str) -> str:
-        v = v.strip().lower()
-        if v not in UNIDADES_VALIDAS:
-            raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(UNIDADES_VALIDAS)}")
+        v = _normalizar_unidad(v)
+        if v not in UNIDADES_COMPRA_VALIDAS:
+            raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(UNIDADES_COMPRA_VALIDAS)}")
         return v
 
 
@@ -57,7 +75,7 @@ class RecetasCreate(BaseModel):
     @field_validator("nombre")
     @classmethod
     def nombre_no_vacio(cls, v: str) -> str:
-        return v.strip()
+        return _normalizar_nombre(v)
 
 
 class RecetaOut(BaseModel):
@@ -86,9 +104,9 @@ class RecetaItemCreate(BaseModel):
     @field_validator("unidad")
     @classmethod
     def unidad_valida(cls, v: str) -> str:
-        v = v.strip().lower()
-        if v not in UNIDADES_VALIDAS:
-            raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(UNIDADES_VALIDAS)}")
+        v = _normalizar_unidad(v)
+        if v not in UNIDADES_RECETA_VALIDAS:
+            raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(UNIDADES_RECETA_VALIDAS)}")
         return v
 
 
@@ -99,9 +117,9 @@ class RecetaItemUpdate(BaseModel):
     @field_validator("unidad")
     @classmethod
     def unidad_valida(cls, v: str) -> str:
-        v = v.strip().lower()
-        if v not in UNIDADES_VALIDAS:
-            raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(UNIDADES_VALIDAS)}")
+        v = _normalizar_unidad(v)
+        if v not in UNIDADES_RECETA_VALIDAS:
+            raise ValueError(f"Unidad '{v}' no válida. Usa: {sorted(UNIDADES_RECETA_VALIDAS)}")
         return v
 
 
@@ -159,7 +177,7 @@ class RecetaConfigUpdate(BaseModel):
     @field_validator("nombre")
     @classmethod
     def nombre_no_vacio(cls, v: str) -> str:
-        return v.strip()
+        return _normalizar_nombre(v)
 
 
 # ─────────────────────────────────────────
@@ -175,7 +193,7 @@ class EmpleadoCreate(BaseModel):
     @field_validator("nombre")
     @classmethod
     def nombre_no_vacio(cls, v: str) -> str:
-        return v.strip()
+        return _normalizar_nombre(v)
 
 
 class EmpleadoOut(BaseModel):
