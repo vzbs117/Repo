@@ -55,7 +55,6 @@ powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -Run
 ```
 
 Si prefieres hacerlo manualmente:
-
 1. Crear entorno virtual:
 
 ```bash

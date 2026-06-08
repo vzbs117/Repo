@@ -1,0 +1,47 @@
+/* ── FUENTES ── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap');
+
+/* ── TOKENS DE DISEÑO ── */
+:root {
+  /* Colores base */
+  --bg:           #F7F4EF;
+  --surface:      #FFFFFF;
+  --border:       #E8E2D9;
+  --border-focus: #F5C842;
+
+  /* Texto */
+  --text:         #1A1400;
+  --muted:        #7A6F5E;
+  --hint:         #A89F8E;
+
+  /* Acento principal — miel */
+  --accent:       #F5C842;
+  --accent-bg:    #FFFDF0;
+  --accent-text:  #7A5C00;
+
+  /* Semánticos */
+  --green:        #2D7A4F;
+  --green-bg:     #F0FBF4;
+  --green-border: #86EFAC;
+
+  --red:          #B91C1C;
+  --red-bg:       #FEF2F2;
+  --red-border:   #FECACA;
+
+  --teal-bg:      #F0FDF9;
+  --teal-border:  #5DCAA5;
+  --teal-text:    #0F6E56;
+
+  --blue-bg:      #EFF6FF;
+  --blue-border:  #93C5FD;
+  --blue-text:    #1D4ED8;
+
+  /* Tipografía */
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+
+  /* Radios */
+  --radius:    16px;
+  --radius-sm: 10px;
+  --radius-xs: 7px;
+}

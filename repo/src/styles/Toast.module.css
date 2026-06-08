@@ -1,0 +1,29 @@
+.toast {
+  position:   fixed;
+  bottom:     24px;
+  left:       50%;
+  transform:  translateX(-50%) translateY(80px);
+  background: #1A2E22;
+  border:     1px solid var(--green-border);
+  color:      #6EE7B7;
+  border-radius: 99px;
+  padding:    11px 22px;
+  font-size:  13px;
+  font-weight: 600;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+  opacity:    0;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index:    200;
+}
+
+.show {
+  transform: translateX(-50%) translateY(0);
+  opacity:   1;
+}
+
+.error {
+  background:   #2E1A1A;
+  border-color: var(--red-border);
+  color:        #FCA5A5;
+}
