@@ -1,140 +1,127 @@
-# 🍰 Repostería Costos — Calculadora de Recetas
+# Repostreria
 
-Aplicación web para calcular el **costo real de recetas de repostería** por unidad y por lote, usando ingredientes, unidades de medida y reglas de conversión.  
-Incluye backend en FastAPI + SQLite y frontend en HTML/CSS/JS.
+Proyecto para administrar ingredientes, recetas, costos de produccion y calculos de negocio para una reposteria.
 
----
+El repositorio incluye:
+- un backend en FastAPI + SQLite
+- un frontend actual en React + Vite dentro de `repo`
+- una carpeta `frontend` antigua que no es la version principal actual
 
-## 🚀 Funciones actuales (V1)
+## Estructura principal
 
-- ✅ Registro de ingredientes con:
-  - costo de compra
-  - cantidad comprada
-  - unidad (g, kg, ml, L, pz, tsp, tbsp)
-- ✅ Conversión automática a unidad base
-- ✅ Cálculo de costo unitario por ingrediente
-- ✅ Creación de recetas
-- ✅ Agregar ingredientes a recetas con diferentes unidades
-- ✅ Cálculo de costo total de receta
-- ✅ Cálculo de costo por unidad/pieza
-- ✅ UI web para ingredientes y recetas
-- ✅ Visualización de costo por ingrediente dentro de la receta
+- [backend](/Users/saul/Desktop/portafolio/repostreria/backend): API, logica de negocio, pruebas e instaladores
+- [repo](/Users/saul/Desktop/portafolio/repostreria/repo): frontend React + Vite
+- [frontend](/Users/saul/Desktop/portafolio/repostreria/frontend): frontend anterior, mantenido solo como referencia historica
 
----
+## Estado actual
 
-## 🧮 Ejemplo de uso
+La version vigente del proyecto es:
+- backend en `backend`
+- frontend en `repo`
 
-Si compras:
+El backend ya incluye:
+- configuracion centralizada
+- `.env.example`
+- instaladores para macOS, Linux y Windows
+- pruebas de logica y de API
 
-- 1 kg harina = $120
+El frontend ya incluye:
+- configuracion por entorno con `VITE_API_URL`
+- `.env.example`
+- build funcional con Vite
 
-El sistema calcula:
+## Requisitos
 
-- $0.12 por gramo
+### Backend
+- Python 3.11 o superior
 
-Si la receta usa:
+### Frontend
+- Node.js 20 o superior
+- npm 10 o superior
 
-- 200 g harina → costo = $24
+## Instalacion rapida en Windows
 
----
+### 1. Backend
 
-## 🛠️ Tecnologías
+En PowerShell, entra a la carpeta del backend y ejecuta:
 
-**Backend**
-- FastAPI
-- SQLAlchemy
-- SQLite
-- Uvicorn
+```powershell
+cd .\backend
+powershell -ExecutionPolicy Bypass -File .\install_backend.ps1
+```
 
-**Frontend**
-- HTML5
-- CSS3 (tema glass / estilo moderno)
-- JavaScript vanilla
+Opciones utiles:
 
----
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -CheckOnly
+powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -SkipTests
+powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -Run
+```
 
-## 📂 Estructura del proyecto
-# 🍰 Repostería Costos — Calculadora de Recetas
+Documentacion detallada:
+- [backend/README.md](/Users/saul/Desktop/portafolio/repostreria/backend/README.md)
 
-Aplicación web para calcular el **costo real de recetas de repostería** por unidad y por lote, usando ingredientes, unidades de medida y reglas de conversión.  
-Incluye backend en FastAPI + SQLite y frontend en HTML/CSS/JS.
+### 2. Frontend
 
----
+En otra terminal:
 
-## 🚀 Funciones actuales (V1)
+```powershell
+cd .\repo
+copy .env.example .env
+npm install
+npm run dev
+```
 
-- ✅ Registro de ingredientes con:
-  - costo de compra
-  - cantidad comprada
-  - unidad (g, kg, ml, L, pz, tsp, tbsp)
-- ✅ Conversión automática a unidad base
-- ✅ Cálculo de costo unitario por ingrediente
-- ✅ Creación de recetas
-- ✅ Agregar ingredientes a recetas con diferentes unidades
-- ✅ Cálculo de costo total de receta
-- ✅ Cálculo de costo por unidad/pieza
-- ✅ UI web para ingredientes y recetas
-- ✅ Visualización de costo por ingrediente dentro de la receta
+La variable principal del frontend es:
 
----
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
 
-## 🧮 Ejemplo de uso
+Documentacion detallada:
+- [repo/README.md](/Users/saul/Desktop/portafolio/repostreria/repo/README.md)
 
-Si compras:
+## Instalacion rapida en macOS o Linux
 
-- 1 kg harina = $120
-
-El sistema calcula:
-
-- $0.12 por gramo
-
-Si la receta usa:
-
-- 200 g harina → costo = $24
-
----
-
-## 🛠️ Tecnologías
-
-**Backend**
-- FastAPI
-- SQLAlchemy
-- SQLite
-- Uvicorn
-
-**Frontend**
-- HTML5
-- CSS3 (tema glass / estilo moderno)
-- JavaScript vanilla
-
----
-
-## 📂 Estructura del proyecto
-
-reposteria/
-backend/
-app/
-main.py
-models.py
-schemas.py
-crud.py
-db.py
-run.py
-frontend/
-index.html
-recetas.html
-style.css
-app.js
-recetas.js
-## ▶️ Cómo ejecutar el proyecto
-
-### 1️⃣ Backend
+### 1. Backend
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate   # Mac/Linux
-.venv\Scripts\activate      # Windows
+bash install_backend.sh
+```
 
-pip install -r requirements.txt
-python run.py
+### 2. Frontend
+
+```bash
+cd repo
+cp .env.example .env
+npm install
+npm run dev
+```
+
+## URLs esperadas en desarrollo
+
+- Backend: `http://127.0.0.1:8000`
+- Swagger: `http://127.0.0.1:8000/docs`
+- Frontend Vite: `http://127.0.0.1:5173`
+
+## Flujo recomendado para probar en otra PC
+
+1. Instalar y validar primero el backend.
+2. Confirmar que el backend responde en `/docs`.
+3. Configurar `repo/.env` con la URL correcta del backend.
+4. Instalar y levantar el frontend.
+5. Verificar que frontend y backend se comuniquen correctamente.
+
+## Notas importantes
+
+- El backend usa SQLite por defecto con `repostreria.db`.
+- El frontend actual no usa la carpeta `frontend`; usa la carpeta `repo`.
+- La eliminacion de ingredientes desde la interfaz de `repo` esta desactivada mientras el backend no exponga ese endpoint.
+
+## Referencias utiles
+
+- [backend/README.md](/Users/saul/Desktop/portafolio/repostreria/backend/README.md)
+- [repo/README.md](/Users/saul/Desktop/portafolio/repostreria/repo/README.md)
+- [backend/.env.example](/Users/saul/Desktop/portafolio/repostreria/backend/.env.example)
+- [repo/.env.example](/Users/saul/Desktop/portafolio/repostreria/repo/.env.example)
