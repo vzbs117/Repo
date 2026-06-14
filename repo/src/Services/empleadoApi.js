@@ -1,4 +1,4 @@
-const API = 'http://127.0.0.1:8000'
+import { API_BASE_URL as API } from '../config/api'
 
 async function fetchJson(url, options = {}) {
   const res  = await fetch(url, options)
@@ -12,9 +12,9 @@ async function fetchJson(url, options = {}) {
   return data
 }
 
-export const getEmpleados    = ()     => fetchJson(`${API}/empleados`)
+export const getEmpleados = () => fetchJson(`${API}/empleados`)
 
-export const createEmpleado  = (body) =>
+export const createEmpleado = (body) =>
   fetchJson(`${API}/empleados`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },

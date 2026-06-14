@@ -1,16 +1,53 @@
-# React + Vite
+# Frontend Repostreria
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicacion frontend en React + Vite para administrar ingredientes, recetas, equipo y calculos de negocio.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20 o superior
+- npm 10 o superior
+- Backend disponible y accesible por HTTP
 
-## React Compiler
+## Instalacion
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Instala dependencias:
 
-## Expanding the ESLint configuration
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Crea tu archivo de entorno:
+
+```bash
+cp .env.example .env
+```
+
+3. Ajusta la URL del backend si hace falta:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+## Desarrollo
+
+```bash
+npm run dev
+```
+
+## Build de produccion
+
+```bash
+npm run build
+```
+
+## Vista previa del build
+
+```bash
+npm run preview
+```
+
+## Notas
+
+- El frontend espera que el backend exponga la API de FastAPI.
+- La configuracion principal del frontend depende de `VITE_API_URL`.
+- La eliminacion de ingredientes no esta habilitada desde la UI mientras el backend no exponga ese endpoint.

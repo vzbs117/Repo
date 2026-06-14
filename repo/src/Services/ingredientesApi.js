@@ -1,4 +1,4 @@
-const API = 'http://127.0.0.1:8000'
+import { API_BASE_URL as API } from '../config/api'
 
 async function fetchJson(url, options = {}) {
   const res  = await fetch(url, options)
@@ -30,8 +30,4 @@ export async function updateIngrediente(id, body) {
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(body),
   })
-}
-
-export async function deleteIngrediente(id) {
-  return fetchJson(`${API}/ingredientes/${id}`, { method: 'DELETE' })
 }

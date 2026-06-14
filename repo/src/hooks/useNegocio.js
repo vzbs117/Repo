@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getRecetas, getEmpleados, guardarConfig, getResumen, getDiagnostico } from '../services/negocioApi'
+import { getRecetas, getEmpleados, guardarConfig, getResumen, getDiagnostico } from '../Services/negocioApi'
 
 const CONFIG_INICIAL = {
   recetaId: '',

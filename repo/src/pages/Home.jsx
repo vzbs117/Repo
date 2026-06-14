@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styles from '../styles/Home.module.css'
 
-const API = 'http://127.0.0.1:8000'
+import { API_BASE_URL as API } from '../config/api'
 
 const SECCIONES = [
   {

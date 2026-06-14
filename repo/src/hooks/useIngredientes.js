@@ -3,8 +3,7 @@ import {
   getIngredientes,
   createIngrediente,
   updateIngrediente,
-  deleteIngrediente,
-} from '../services/ingredientesApi'
+} from '../Services/ingredientesApi'
 
 const FORM_VACIO = {
   nombre:   '',
@@ -20,7 +19,6 @@ export function useIngredientes() {
   const [editandoId, setEditandoId] = useState(null)
   const [form,       setForm]       = useState(FORM_VACIO)
 
-  // ── CARGAR ──
   const cargar = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -36,7 +34,6 @@ export function useIngredientes() {
 
   useEffect(() => { cargar() }, [cargar])
 
-  // ── FORM ──
   const setField = (campo, valor) =>
     setForm(prev => ({ ...prev, [campo]: valor }))
 
@@ -55,14 +52,12 @@ export function useIngredientes() {
     })
   }
 
-  // ── VALIDAR ──
   const esFormValido =
     form.nombre.trim() !== '' &&
-    parseFloat(form.costo)    > 0 &&
+    parseFloat(form.costo) > 0 &&
     parseFloat(form.cantidad) > 0 &&
     form.unidad !== null
 
-  // ── GUARDAR (crear o actualizar) ──
   const guardar = async () => {
     if (!esFormValido) return
 
@@ -90,38 +85,23 @@ export function useIngredientes() {
     }
   }
 
-  // ── ELIMINAR ──
-  const eliminar = async (id, nombre) => {
-    setLoading(true)
-    try {
-      await deleteIngrediente(id)
-      await cargar()
-      return { ok: true, nombre }
-    } catch (e) {
-      return { ok: false, error: e.message }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // ── PREVIEW del costo por unidad base ──
   const FACTOR = {
     g: 1, kg: 1000, oz: 28.35, lb: 453.59,
-    ml: 1, l: 1000, tsp: 5, tbsp: 15, cup: 240, pz: 1,
+    ml: 1, l: 1000, tsp: 5, tbsp: 15, cup: 240, fl_oz: 29.57, pz: 1,
   }
   const LABEL = {
     g: 'gramo', kg: 'kilogramo', oz: 'onza', lb: 'libra',
     ml: 'mililitro', l: 'litro', tsp: 'cucharadita',
-    tbsp: 'cucharada', cup: 'taza', pz: 'pieza',
+    tbsp: 'cucharada', cup: 'taza', fl_oz: 'onza fluida', pz: 'pieza',
   }
 
   let preview = null
-  const costo    = parseFloat(form.costo)
+  const costo = parseFloat(form.costo)
   const cantidad = parseFloat(form.cantidad)
   if (costo > 0 && cantidad > 0 && form.unidad) {
-    const base  = costo / (cantidad * (FACTOR[form.unidad] || 1))
+    const base = costo / (cantidad * (FACTOR[form.unidad] || 1))
     preview = {
-      costo:  base.toFixed(4),
+      costo: base.toFixed(4),
       unidad: LABEL[form.unidad] || form.unidad,
     }
   }
@@ -130,7 +110,7 @@ export function useIngredientes() {
     lista, loading, error,
     form, setField, limpiarForm, iniciarEdicion,
     editandoId, esFormValido,
-    guardar, eliminar, cargar,
+    guardar, cargar,
     preview,
   }
 }
