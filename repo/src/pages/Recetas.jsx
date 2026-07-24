@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useRecetas } from '../hooks/useRecetas'
 import MedidaChips from '../components/MedidaChips'
 import Toast from '../components/Toast'
@@ -28,6 +29,31 @@ export default function Recetas() {
   } = useRecetas()
 
   const { toast, show: showToast } = useToast()
+  const [busquedaIngrediente, setBusquedaIngrediente] = useState('')
+
+  useEffect(() => {
+    setBusquedaIngrediente(ingredienteSeleccionado?.nombre ?? '')
+  }, [ingredienteSeleccionado])
+
+  const terminoIngrediente = busquedaIngrediente.trim().toLowerCase()
+  const ingredientesFiltrados = ingredientes.filter(i =>
+    i.nombre.toLowerCase().includes(terminoIngrediente)
+  )
+  const ingredientesSugeridos = terminoIngrediente
+    ? ingredientesFiltrados
+    : ingredientes.slice(0, 8)
+
+  function handleBusquedaIngrediente(valor) {
+    setBusquedaIngrediente(valor)
+    if (!ingredienteSeleccionado) return
+    if (valor.trim().toLowerCase() === ingredienteSeleccionado.nombre.toLowerCase()) return
+    setFormItem(p => ({ ...p, ingredienteId: '', unidad: null }))
+  }
+
+  function handleSeleccionarIngrediente(ingrediente) {
+    setBusquedaIngrediente(ingrediente.nombre)
+    setFormItem(p => ({ ...p, ingredienteId: ingrediente.id, unidad: null }))
+  }
 
   async function handleCrearReceta() {
     const res = await crearReceta()
@@ -159,18 +185,38 @@ export default function Recetas() {
 
               <div className={styles.fieldGroup}>
                 <div className={styles.fieldQuestion}>¿Qué ingrediente vas a usar?</div>
-                <select
+                <input
                   className={styles.input}
-                  value={formItem.ingredienteId}
-                  onChange={e => setFormItem(p => ({ ...p, ingredienteId: e.target.value, unidad: null }))}
-                >
-                  <option value="">Elige un ingrediente</option>
-                  {ingredientes.map(i => (
-                    <option key={i.id} value={i.id}>
-                      {i.nombre} [{i.unidad_base}]
-                    </option>
-                  ))}
-                </select>
+                  value={busquedaIngrediente}
+                  onChange={e => handleBusquedaIngrediente(e.target.value)}
+                  placeholder="Busca por nombre"
+                  autoComplete="off"
+                />
+                <div className={styles.searchHint}>
+                  {busquedaIngrediente.trim()
+                    ? 'Selecciona un ingrediente de la lista filtrada.'
+                    : 'Escribe el nombre para encontrarlo más rápido.'}
+                </div>
+                <div className={styles.searchList}>
+                  {ingredientesSugeridos.length > 0 ? (
+                    ingredientesSugeridos.map(i => {
+                      const activo = String(i.id) === String(formItem.ingredienteId)
+                      return (
+                        <button
+                          key={i.id}
+                          type="button"
+                          className={`${styles.searchItem} ${activo ? styles.searchItemActive : ''}`}
+                          onClick={() => handleSeleccionarIngrediente(i)}
+                        >
+                          <span>{i.nombre}</span>
+                          <span className={styles.searchItemMeta}>{MEDIDA_LABEL[i.unidad_base] ?? i.unidad_base}</span>
+                        </button>
+                      )
+                    })
+                  ) : (
+                    <div className={styles.searchEmpty}>No encontramos ingredientes con ese nombre.</div>
+                  )}
+                </div>
               </div>
 
               <div className={styles.fieldGroup}>

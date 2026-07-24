@@ -1,99 +1,88 @@
-# Backend Reposteria
+# Backend Repostreria
 
 API en FastAPI para administrar ingredientes, recetas, empleados y costos de produccion.
 
 ## Requisitos
 
 - Python 3.11 o superior
-- `venv` habilitado
+- soporte para `venv`
 
-## Instalacion limpia
+## Instalacion recomendada
 
-La forma recomendada es con el instalador.
-
-En macOS o Linux:
-
+### macOS o Linux
 ```bash
 bash install_backend.sh
 ```
 
-En Windows con PowerShell:
-
+### Windows PowerShell
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install_backend.ps1
 ```
 
-O con el wrapper `.bat`:
-
+### Windows con wrapper
 ```bat
 install_backend.bat
 ```
 
-Ese comando:
+Los instaladores hacen lo siguiente:
+- validan Python y version minima
+- crean `.venv` si hace falta
+- instalan dependencias
+- crean `.env` desde `.env.example` si no existe
+- ejecutan las pruebas del backend
 
-- verifica que exista `python3`
-- valida que la version sea compatible
-- crea `.venv` si hace falta
-- instala dependencias
-- crea `.env` desde `.env.example` si no existe
-- ejecuta las pruebas del backend
+## Opciones utiles del instalador
 
-Opciones utiles:
-
+### macOS o Linux
 ```bash
 bash install_backend.sh --check-only
 bash install_backend.sh --skip-tests
 bash install_backend.sh --run
 ```
 
-Equivalentes en Windows:
-
+### Windows
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -CheckOnly
 powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -SkipTests
 powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -Run
 ```
 
-Si prefieres hacerlo manualmente:
-1. Crear entorno virtual:
+## Instalacion manual
 
+1. Crear entorno virtual:
 ```bash
 python3 -m venv .venv
 ```
 
-2. Activar el entorno virtual:
-
+2. Activarlo:
 ```bash
 source .venv/bin/activate
 ```
 
 3. Instalar dependencias:
-
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-4. Crear archivo de entorno:
-
+4. Crear `.env`:
 ```bash
 cp .env.example .env
 ```
 
-## Ejecutar el backend
+## Ejecucion
 
 Con el entorno virtual activo:
-
 ```bash
 python run.py
 ```
 
-La API queda disponible por defecto en:
+## URLs esperadas
 
-- `http://127.0.0.1:8000`
-- `http://127.0.0.1:8000/docs`
+- API: `http://127.0.0.1:8000`
+- Swagger: `http://127.0.0.1:8000/docs`
 
-## Ejecutar pruebas
+## Pruebas
 
 ```bash
 python -m unittest discover -s tests -v
@@ -101,15 +90,16 @@ python -m unittest discover -s tests -v
 
 ## Variables de entorno
 
-- `DATABASE_URL`: cadena de conexion de la base de datos.
-- `HOST`: host donde corre Uvicorn.
-- `PORT`: puerto donde corre Uvicorn.
-- `UVICORN_RELOAD`: `true` o `false` para recarga automatica.
-- `BACKEND_CORS_ORIGINS`: origenes permitidos por CORS, separados por comas.
+- `DATABASE_URL`: cadena de conexion de la base de datos
+- `HOST`: host del servidor
+- `PORT`: puerto del servidor
+- `UVICORN_RELOAD`: activa o desactiva recarga automatica
+- `BACKEND_CORS_ORIGINS`: origenes permitidos por CORS, separados por comas
 
-Toda la configuracion del backend se centraliza en [app/settings.py](/Users/saul/Desktop/portafolio/repostreria/backend/app/settings.py).
+La configuracion se centraliza en `app/settings.py`.
 
 ## Notas
 
-- Si no defines `DATABASE_URL`, el proyecto usa SQLite local con `repostreria.db`.
+- Si no defines `DATABASE_URL`, se usa SQLite local con `repostreria.db`.
 - Al arrancar, la app crea las tablas faltantes y siembra el catalogo base de unidades.
+- El backend incluye pruebas de logica y pruebas de endpoints.

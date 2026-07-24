@@ -1,70 +1,45 @@
 # Repostreria
 
-Proyecto para administrar ingredientes, recetas, costos de produccion y calculos de negocio para una reposteria.
+Aplicacion para administrar ingredientes, recetas, equipo y calculos de costos de una reposteria.
 
-El repositorio incluye:
-- un backend en FastAPI + SQLite
-- un frontend actual en React + Vite dentro de `repo`
-- una carpeta `frontend` antigua que no es la version principal actual
+Este repositorio contiene dos piezas activas:
+- `backend`: API en FastAPI + SQLite
+- `repo`: frontend en React + Vite
 
-## Estructura principal
+La carpeta `frontend` se conserva solo como referencia historica y no es la interfaz principal actual.
 
-- [backend](/Users/saul/Desktop/portafolio/repostreria/backend): API, logica de negocio, pruebas e instaladores
-- [repo](/Users/saul/Desktop/portafolio/repostreria/repo): frontend React + Vite
-- [frontend](/Users/saul/Desktop/portafolio/repostreria/frontend): frontend anterior, mantenido solo como referencia historica
+## Estructura del proyecto
 
-## Estado actual
+- `backend/`: API, logica de negocio, instaladores y pruebas
+- `repo/`: frontend actual
+- `frontend/`: version anterior, no recomendada para uso actual
 
-La version vigente del proyecto es:
-- backend en `backend`
-- frontend en `repo`
-
-El backend ya incluye:
-- configuracion centralizada
-- `.env.example`
-- instaladores para macOS, Linux y Windows
-- pruebas de logica y de API
-
-El frontend ya incluye:
-- configuracion por entorno con `VITE_API_URL`
-- `.env.example`
-- build funcional con Vite
-
-## Requisitos
+## Tecnologias
 
 ### Backend
-- Python 3.11 o superior
+- Python 3.11+
+- FastAPI
+- SQLAlchemy
+- SQLite
+- Uvicorn
 
 ### Frontend
-- Node.js 20 o superior
-- npm 10 o superior
+- Node.js 20+
+- npm 10+
+- React
+- Vite
 
-## Instalacion rapida en Windows
+## Instalacion rapida
 
-### 1. Backend
+### Windows
 
-En PowerShell, entra a la carpeta del backend y ejecuta:
-
+#### Backend
 ```powershell
 cd .\backend
 powershell -ExecutionPolicy Bypass -File .\install_backend.ps1
 ```
 
-Opciones utiles:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -CheckOnly
-powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -SkipTests
-powershell -ExecutionPolicy Bypass -File .\install_backend.ps1 -Run
-```
-
-Documentacion detallada:
-- [backend/README.md](/Users/saul/Desktop/portafolio/repostreria/backend/README.md)
-
-### 2. Frontend
-
-En otra terminal:
-
+#### Frontend
 ```powershell
 cd .\repo
 copy .env.example .env
@@ -72,26 +47,15 @@ npm install
 npm run dev
 ```
 
-La variable principal del frontend es:
+### macOS o Linux
 
-```env
-VITE_API_URL=http://127.0.0.1:8000
-```
-
-Documentacion detallada:
-- [repo/README.md](/Users/saul/Desktop/portafolio/repostreria/repo/README.md)
-
-## Instalacion rapida en macOS o Linux
-
-### 1. Backend
-
+#### Backend
 ```bash
 cd backend
 bash install_backend.sh
 ```
 
-### 2. Frontend
-
+#### Frontend
 ```bash
 cd repo
 cp .env.example .env
@@ -99,29 +63,66 @@ npm install
 npm run dev
 ```
 
+## Variables de entorno principales
+
+### Backend
+Archivo: `backend/.env`
+
+Variables principales:
+- `DATABASE_URL`
+- `HOST`
+- `PORT`
+- `UVICORN_RELOAD`
+- `BACKEND_CORS_ORIGINS`
+
+Referencia:
+- `backend/.env.example`
+
+### Frontend
+Archivo: `repo/.env`
+
+Variable principal:
+- `VITE_API_URL`
+
+Referencia:
+- `repo/.env.example`
+
 ## URLs esperadas en desarrollo
 
 - Backend: `http://127.0.0.1:8000`
-- Swagger: `http://127.0.0.1:8000/docs`
-- Frontend Vite: `http://127.0.0.1:5173`
+- Documentacion API: `http://127.0.0.1:8000/docs`
+- Frontend: `http://127.0.0.1:5173`
 
-## Flujo recomendado para probar en otra PC
+## Estado actual del proyecto
 
-1. Instalar y validar primero el backend.
-2. Confirmar que el backend responde en `/docs`.
-3. Configurar `repo/.env` con la URL correcta del backend.
+### Backend
+Incluye:
+- configuracion centralizada
+- instaladores para Windows, macOS y Linux
+- pruebas de logica y de API
+- endpoints para ingredientes, recetas, empleados, costos y diagnostico
+
+### Frontend
+Incluye:
+- configuracion por entorno con `VITE_API_URL`
+- build funcional con Vite
+- interfaz para ingredientes, recetas, equipo y negocio
+
+## Flujo recomendado para probar en otra computadora
+
+1. Instalar y validar el backend.
+2. Confirmar que `/docs` responde correctamente.
+3. Configurar `repo/.env` con la URL real del backend.
 4. Instalar y levantar el frontend.
-5. Verificar que frontend y backend se comuniquen correctamente.
+5. Verificar que frontend y backend se comuniquen bien.
+
+## Documentacion por modulo
+
+- `backend/README.md`
+- `repo/README.md`
 
 ## Notas importantes
 
 - El backend usa SQLite por defecto con `repostreria.db`.
-- El frontend actual no usa la carpeta `frontend`; usa la carpeta `repo`.
-- La eliminacion de ingredientes desde la interfaz de `repo` esta desactivada mientras el backend no exponga ese endpoint.
-
-## Referencias utiles
-
-- [backend/README.md](/Users/saul/Desktop/portafolio/repostreria/backend/README.md)
-- [repo/README.md](/Users/saul/Desktop/portafolio/repostreria/repo/README.md)
-- [backend/.env.example](/Users/saul/Desktop/portafolio/repostreria/backend/.env.example)
-- [repo/.env.example](/Users/saul/Desktop/portafolio/repostreria/repo/.env.example)
+- La interfaz actual es la carpeta `repo`, no `frontend`.
+- La eliminacion de ingredientes desde la UI esta desactivada mientras el backend no exponga ese endpoint.

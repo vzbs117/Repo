@@ -43,6 +43,14 @@ export default function Negocio() {
     }
   }
 
+  function handleImprimir() {
+    window.print()
+  }
+
+  function handleImprimir() {
+    window.print()
+  }
+
   function getTip(r) {
     const margen = Math.round(r.margen_real * 100)
     if (margen < 25)
@@ -366,6 +374,9 @@ export default function Negocio() {
           <div className={styles.actions}>
             <button className={styles.btnPrimary} onClick={handleGuardarConfig}>
               Guardar configuración
+            </button>
+            <button className={styles.btnPrint} onClick={handleImprimir}>
+              Imprimir cotización
             </button>
             <button className={styles.btnGhost} onClick={recalcular}>
               Recalcular

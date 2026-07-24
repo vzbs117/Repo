@@ -105,13 +105,158 @@
 .desgloseLabel { color: var(--muted); }
 .desgloseValor { font-weight: 500; font-variant-numeric: tabular-nums; }
 
-.accionesFinal { display: flex; gap: 10px; margin-top: 8px; }
+.actions { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
 
-.btnGuardar { flex: 1; padding: 12px; background: var(--text); color: #fff; border: none; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .15s; }
-.btnGuardar:hover { opacity: .85; }
+.btnPrimary,
+.btnPrint,
+.btnGhost {
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all .15s;
+}
 
-.btnRecalcular { padding: 12px 18px; background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s; }
-.btnRecalcular:hover { border-color: var(--text); color: var(--text); }
+.btnPrimary {
+  flex: 1;
+  background: var(--text);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+.btnPrimary:hover { opacity: .85; }
+
+.btnPrint {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+  border: 1px solid var(--accent);
+  font-weight: 600;
+}
+.btnPrint:hover { opacity: .88; }
+
+.btnGhost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-weight: 500;
+}
+.btnGhost:hover { border-color: var(--text); color: var(--text); }
 
 .statusMsg     { font-size: 13px; margin-top: 10px; min-height: 18px; text-align: center; color: var(--green); }
 .statusMsg.err { color: var(--red); }
+
+@media print {
+  .page {
+    max-width: none;
+    padding: 0;
+  }
+
+  .header,
+  .recetaSelector,
+  .steps,
+  .btnCalcular,
+  .statusMsg,
+  .actions,
+  :global(.toast) {
+    display: none !important;
+  }
+
+  .resultados {
+    animation: none;
+  }
+
+  .resultadoTitle {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .numerosTop,
+  .desglose,
+  .consejo {
+    break-inside: avoid;
+  }
+
+  .numeroCard,
+  .desglose,
+  .consejo {
+    border: 1px solid #d9d9d9;
+    box-shadow: none;
+  }
+}
+
+.actions { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+
+.btnPrimary,
+.btnPrint,
+.btnGhost {
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.btnPrimary {
+  flex: 1;
+  background: var(--text);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+.btnPrimary:hover { opacity: .85; }
+
+.btnPrint {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+  border: 1px solid var(--accent);
+  font-weight: 600;
+}
+.btnPrint:hover { opacity: .88; }
+
+.btnGhost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-weight: 500;
+}
+.btnGhost:hover { border-color: var(--text); color: var(--text); }
+
+@media print {
+  .page {
+    max-width: none;
+    padding: 0;
+  }
+
+  .header,
+  .recetaSelector,
+  .steps,
+  .btnCalcular,
+  .statusMsg,
+  .actions {
+    display: none !important;
+  }
+
+  .resultados {
+    animation: none;
+  }
+
+  .resultadoTitle {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .numerosTop,
+  .desglose,
+  .consejo {
+    break-inside: avoid;
+  }
+
+  .numeroCard,
+  .desglose,
+  .consejo {
+    border: 1px solid #d9d9d9;
+    box-shadow: none;
+  }
+}
