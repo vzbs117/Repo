@@ -10,7 +10,9 @@ export default function Equipo() {
   const {
     lista, loading, error,
     form, setField,
+    limpiarForm, iniciarEdicion, editandoId,
     esFormValido, guardar,
+    cambiarActivo,
     stats,
   } = useEmpleados()
 
@@ -18,8 +20,17 @@ export default function Equipo() {
 
   async function handleGuardar() {
     const res = await guardar()
-    if (res?.ok)    showToast(`✓ "${res.nombre}" agregado al equipo`)
+    if (res?.ok)    showToast(res.editando ? `✓ "${res.nombre}" actualizado` : `✓ "${res.nombre}" agregado al equipo`)
     else            showToast(res?.error, 'error')
+  }
+
+  async function handleCambiarActivo(emp) {
+    if (emp.activo && !confirm(`¿Desactivar a "${emp.nombre}"?\nDejará de aparecer al calcular recetas.`)) {
+      return
+    }
+    const res = await cambiarActivo(emp)
+    if (res?.ok) showToast(res.activo ? `✓ "${res.nombre}" activado` : `✓ "${res.nombre}" desactivado`)
+    else showToast(res?.error, 'error')
   }
 
   return (
@@ -30,7 +41,7 @@ export default function Equipo() {
         <h1 className={styles.title}>👩‍🍳 Mi equipo</h1>
         <p className={styles.subtitle}>
           Registra a las personas que te ayudan para incluir su pago
-          en el costo de tus recetas.
+          dentro del costo de tus recetas.
         </p>
       </div>
 
@@ -54,9 +65,18 @@ export default function Equipo() {
 
         {/* ── FORMULARIO ── */}
         <div className={styles.card}>
-          <div className={styles.cardTitle}>Agregar persona</div>
-          <div className={styles.cardSub}>
-            El salario por hora se calcula automáticamente.
+          <div className={styles.cardHead}>
+            <div>
+              <div className={styles.cardTitle}>{editandoId ? 'Editar persona' : 'Agregar persona'}</div>
+              <div className={styles.cardSub}>
+                El salario por hora se calcula automáticamente con los datos que captures.
+              </div>
+            </div>
+            {editandoId && (
+              <button className={styles.btnGhost} onClick={limpiarForm}>
+                Cancelar
+              </button>
+            )}
           </div>
 
           <div className={styles.fieldGroup}>
@@ -72,8 +92,8 @@ export default function Equipo() {
 
           <div className={styles.fieldGroup}>
             <div className={styles.fieldQuestion}>¿Cuánto le pagas?</div>
-            <div className={styles.fieldHint}>
-              Escribe el pago diario y cuántas horas trabaja ese día.
+              <div className={styles.fieldHint}>
+              Escribe el pago diario y cuántas horas trabaja en ese día.
             </div>
             <div className={styles.inputRow}>
               <div>
@@ -82,6 +102,7 @@ export default function Equipo() {
                   type="number"
                   min="0"
                   step="0.01"
+                  inputMode="decimal"
                   value={form.pagoDiario}
                   onChange={e => setField('pagoDiario', e.target.value)}
                   placeholder="Pago diario $"
@@ -94,6 +115,7 @@ export default function Equipo() {
                   min="1"
                   max="24"
                   step="0.5"
+                  inputMode="decimal"
                   value={form.horasDia}
                   onChange={e => setField('horasDia', e.target.value)}
                   placeholder="Horas por día"
@@ -105,7 +127,7 @@ export default function Equipo() {
           {/* Preview salario por hora */}
           {parseFloat(form.pagoDiario) > 0 && parseFloat(form.horasDia) > 0 && (
             <div className={styles.tip} style={{ marginTop: 0, marginBottom: 14 }}>
-              Su salario por hora sería{' '}
+              Su salario por hora sería aproximadamente{' '}
               <strong>
                 ${money(parseFloat(form.pagoDiario) / parseFloat(form.horasDia))}
               </strong>
@@ -127,7 +149,7 @@ export default function Equipo() {
                   {form.activo ? 'Sí, está activo' : 'No, está inactivo'}
                 </div>
                 <div className={styles.toggleSublabel}>
-                  {form.activo ? 'Aparecerá en recetas' : 'No aparecerá en recetas'}
+                  {form.activo ? 'Podrás usarlo al calcular recetas' : 'No aparecerá al calcular recetas'}
                 </div>
               </div>
             </div>
@@ -138,7 +160,7 @@ export default function Equipo() {
             onClick={handleGuardar}
             disabled={!esFormValido || loading}
           >
-            {loading ? 'Guardando...' : 'Agregar al equipo'}
+            {loading ? 'Guardando...' : editandoId ? 'Guardar cambios' : 'Agregar al equipo'}
           </button>
         </div>
 
@@ -146,7 +168,7 @@ export default function Equipo() {
         <div className={styles.card}>
           <div className={styles.cardTitle}>Mi equipo</div>
           <div className={styles.cardSub}>
-            El salario/hora se usa para calcular la mano de obra en tus recetas.
+            El salario por hora se usa para calcular la mano de obra en tus recetas.
           </div>
 
           {error && <div className={styles.errorMsg}>⚠️ {error}</div>}
@@ -155,13 +177,13 @@ export default function Equipo() {
             {loading && lista.length === 0 ? (
               <div className={styles.stateRow}>
                 <span className={styles.stateIcon}>⏳</span>
-                Cargando tu equipo...
+                Cargando equipo...
               </div>
             ) : lista.length === 0 ? (
               <div className={styles.stateRow}>
                 <span className={styles.stateIcon}>👤</span>
-                Aún no tienes nadie registrado.<br />
-                ¡Agrega a la primera persona con el formulario!
+                Todavía no has registrado a nadie.<br />
+                Agrega a la primera persona con el formulario.
               </div>
             ) : (
               lista.map((emp, idx) => {
@@ -189,6 +211,20 @@ export default function Equipo() {
                     <span className={emp.activo ? styles.badgeActivo : styles.badgeInactivo}>
                       {emp.activo ? 'Activo' : 'Inactivo'}
                     </span>
+                    <div className={styles.empActions}>
+                      <button
+                        className={styles.btnGhostSm}
+                        onClick={() => iniciarEdicion(emp)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className={styles.btnGhostSm}
+                        onClick={() => handleCambiarActivo(emp)}
+                      >
+                        {emp.activo ? 'Desactivar' : 'Activar'}
+                      </button>
+                    </div>
                   </div>
                 )
               })
@@ -197,7 +233,7 @@ export default function Equipo() {
 
           {lista.length > 0 && (
             <div className={styles.tip}>
-              💡 Para usar el costo de mano de obra en una receta, ve a{' '}
+              💡 Para incluir mano de obra en una receta, ve a{' '}
               <strong>¿Cuánto gano?</strong> y selecciona a esta persona.
             </div>
           )}

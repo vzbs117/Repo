@@ -11,6 +11,15 @@ const MEDIDA_LABEL = {
   tbsp: 'cucharadas', cup: 'tazas', fl_oz: 'onzas fluidas', pz: 'piezas',
 }
 
+const normalizarTexto = valor =>
+  valor
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+const compararPorNombre = (a, b) =>
+  a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+
 export default function Ingredientes() {
   const {
     lista, loading, error,
@@ -24,9 +33,10 @@ export default function Ingredientes() {
   const [busqueda, setBusqueda] = useState('')
   const [guardando, setGuardando] = useState(false)
 
-  const listaFiltrada = lista.filter(i =>
-    i.nombre.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  const terminoBusqueda = normalizarTexto(busqueda.trim())
+  const listaFiltrada = [...lista]
+    .sort(compararPorNombre)
+    .filter(i => normalizarTexto(i.nombre).includes(terminoBusqueda))
 
   async function handleGuardar() {
     setGuardando(true)
@@ -49,7 +59,7 @@ export default function Ingredientes() {
             <h1 className={styles.title}>🥚 Mis ingredientes</h1>
             <p className={styles.subtitle}>
               Aquí guardas todo lo que compras para tus recetas.<br />
-              Solo dinos el nombre, cuánto pagaste y cuánto compraste.
+              Solo indica el nombre, cuánto pagaste y cuánto compraste.
             </p>
           </div>
 
@@ -67,7 +77,7 @@ export default function Ingredientes() {
 
             <div className={styles.fieldGroup}>
               <div className={styles.fieldQuestion}>¿Cómo se llama este ingrediente?</div>
-              <div className={styles.fieldHint}>Ejemplo: Harina de trigo, Mantequilla, Huevos...</div>
+              <div className={styles.fieldHint}>Ejemplo: harina de trigo, mantequilla o huevos.</div>
               <input
                 className={styles.input}
                 value={form.nombre}
@@ -79,7 +89,7 @@ export default function Ingredientes() {
 
             <div className={styles.fieldGroup}>
               <div className={styles.fieldQuestion}>¿Cuánto pagaste y cuánto compraste?</div>
-              <div className={styles.fieldHint}>Ejemplo: pagué $45 por 1 kilogramo de harina</div>
+              <div className={styles.fieldHint}>Ejemplo: pagué $45 por 1 kilogramo de harina.</div>
               <div className={styles.inputRow}>
                 <div>
                   <label className={styles.inputLabel}>Pagué ($)</label>
@@ -88,6 +98,7 @@ export default function Ingredientes() {
                     type="number"
                     min="0"
                     step="0.01"
+                    inputMode="decimal"
                     value={form.costo}
                     onChange={e => setField('costo', e.target.value)}
                     placeholder="45.00"
@@ -100,6 +111,7 @@ export default function Ingredientes() {
                     type="number"
                     min="0"
                     step="0.001"
+                    inputMode="decimal"
                     value={form.cantidad}
                     onChange={e => setField('cantidad', e.target.value)}
                     placeholder="1"
@@ -116,7 +128,7 @@ export default function Ingredientes() {
             {preview && (
               <div className={styles.preview}>
                 Cada <strong>{preview.unidad}</strong> de este ingrediente
-                te cuesta aproximadamente <strong>${preview.costo}</strong>
+                te cuesta aproximadamente <strong>${preview.costo}</strong>.
               </div>
             )}
 
@@ -134,7 +146,7 @@ export default function Ingredientes() {
           <div className={styles.listHeader}>
             <span className={styles.listTitle}>Lo que tienes guardado</span>
             <span className={styles.listCount}>
-              {lista.length === 0 ? 'Aún no tienes ninguno' : `${lista.length} guardados`}
+              {lista.length === 0 ? 'Todavía no hay ingredientes' : `${lista.length} guardados`}
             </span>
           </div>
 
@@ -145,6 +157,7 @@ export default function Ingredientes() {
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               placeholder="Buscar un ingrediente..."
+              aria-label="Buscar ingrediente por nombre"
             />
           </div>
 
@@ -154,7 +167,7 @@ export default function Ingredientes() {
             {loading && lista.length === 0 ? (
               <div className={styles.emptyState}>
                 <span className={styles.emptyIcon}>⏳</span>
-                Cargando tus ingredientes...
+                Cargando ingredientes...
               </div>
             ) : listaFiltrada.length === 0 ? (
               <div className={styles.emptyState}>
@@ -162,8 +175,8 @@ export default function Ingredientes() {
                   {lista.length === 0 ? '🛒' : '🔍'}
                 </span>
                 {lista.length === 0
-                  ? 'Todavía no tienes ingredientes.\n¡Agrega el primero usando el formulario de arriba!'
-                  : 'No encontré ningún ingrediente con ese nombre.'}
+                  ? 'Todavía no has guardado ingredientes.\nEmpieza con el formulario de esta misma pantalla.'
+                  : 'No encontramos ingredientes con ese nombre.'}
               </div>
             ) : (
               listaFiltrada.map((ing, idx) => {
@@ -196,6 +209,7 @@ export default function Ingredientes() {
                       <button
                         className={styles.btnIcon}
                         title="Editar"
+                        aria-label={`Editar ${ing.nombre}`}
                         onClick={() => iniciarEdicion(ing)}
                       >
                         ✏️
@@ -208,7 +222,7 @@ export default function Ingredientes() {
           </div>
 
           <div className={styles.emptyState}>
-            La eliminación de ingredientes desde la interfaz está desactivada mientras el backend no exponga ese endpoint.
+            Por ahora la eliminación de ingredientes desde la interfaz está desactivada hasta que el backend exponga esa opción.
           </div>
         </section>
       </div>

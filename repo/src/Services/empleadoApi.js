@@ -20,3 +20,10 @@ export const createEmpleado = (body) =>
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(body),
   })
+
+export const updateEmpleado = (id, body) =>
+  fetchJson(`${API}/empleados/${id}`, {
+    method:  'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(body),
+  })

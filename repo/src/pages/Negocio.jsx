@@ -50,10 +50,10 @@ export default function Negocio() {
   function getTip(r) {
     const margen = Math.round(r.margen_real * 100)
     if (margen < 25)
-      return `Tu margen es del ${margen}% — considera subir un poco el precio para que el negocio sea más rentable.`
+      return `Tu margen es del ${margen}%. Considera subir un poco el precio para que el negocio sea más rentable.`
     if (margen > 60)
-      return `Tu margen es del ${margen}% — ¡excelente! Tu producto tiene muy buena rentabilidad.`
-    return `Tu margen es del ${margen}% — un margen saludable y competitivo para repostería.`
+      return `Tu margen es del ${margen}%. Excelente: tu producto tiene muy buena rentabilidad.`
+    return `Tu margen es del ${margen}%. Es un margen saludable y competitivo para repostería.`
   }
 
   return (
@@ -61,7 +61,7 @@ export default function Negocio() {
       <div className={styles.header}>
         <h1 className={styles.title}>💰 ¿Cuánto gano?</h1>
         <p className={styles.subtitle}>
-          Responde 3 preguntas rápidas y te decimos exactamente cuánto cobrar y cuánto ganarás.
+          Responde 3 preguntas rápidas y calcula cuánto cobrar y cuánto ganarás.
         </p>
       </div>
 
@@ -91,7 +91,7 @@ export default function Negocio() {
             <div className={styles.consejoTexto}>
               Esta receta rinde <strong>{diagnostico.porciones} porciones</strong> y está configurada con
               <strong> {diagnostico.unidades_producidas} unidades producidas</strong>.
-              {' '}En esta pantalla conservaremos las porciones actuales y solo ajustaremos las unidades vendibles.
+              {' '}Aquí mantendremos las porciones tal como están y solo ajustaremos las unidades que realmente vendes.
             </div>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function Negocio() {
             <div className={styles.fieldGroup}>
               <div className={styles.fieldQuestion}>¿Cuántas unidades vendibles produces por lote?</div>
               <div className={styles.fieldHint}>
-                Si la receta rinde 12 porciones pero vendes 1 pastel completo, aquí pondrías 1.
+                Si la receta rinde 12 porciones pero vendes 1 pastel completo, aquí debes poner 1.
               </div>
               <input
                 className={styles.input}
@@ -127,12 +127,13 @@ export default function Negocio() {
             </div>
             <div className={styles.fieldGroup}>
               <div className={styles.fieldQuestion}>¿Cuánto tiempo tardas en hacerlas?</div>
-              <div className={styles.fieldHint}>Desde que empiezas hasta que terminas — incluyendo hornear y decorar.</div>
+              <div className={styles.fieldHint}>Desde que empiezas hasta que terminas, incluyendo hornear y decorar.</div>
               <div className={styles.inputRow}>
                 <div>
                   <input
                     className={styles.input}
                     type="number" min="0"
+                    inputMode="numeric"
                     value={config.horas}
                     onChange={e => setField('horas', e.target.value)}
                     placeholder="1"
@@ -143,6 +144,7 @@ export default function Negocio() {
                   <input
                     className={styles.input}
                     type="number" min="0" max="59"
+                    inputMode="numeric"
                     value={config.minutos}
                     onChange={e => setField('minutos', e.target.value)}
                     placeholder="30"
@@ -177,6 +179,7 @@ export default function Negocio() {
               <input
                 className={styles.input}
                 type="number" min="0" step="0.01"
+                inputMode="decimal"
                 value={config.empaque}
                 onChange={e => setField('empaque', e.target.value)}
                 placeholder="0.50"
@@ -188,6 +191,7 @@ export default function Negocio() {
               <input
                 className={styles.input}
                 type="number" min="0" step="0.01"
+                inputMode="decimal"
                 value={config.transporte}
                 onChange={e => setField('transporte', e.target.value)}
                 placeholder="0"
@@ -206,7 +210,7 @@ export default function Negocio() {
                     {config.hayAyudante ? 'Sí, tengo ayudante' : 'No, trabajo solo'}
                   </div>
                   <div className={styles.toggleSublabel}>
-                    {config.hayAyudante ? 'Su pago se incluirá en el costo' : 'Toca para activar'}
+                    {config.hayAyudante ? 'Su pago se sumará al costo del lote' : 'Actívalo si alguien te ayuda'}
                   </div>
                 </div>
               </div>
@@ -249,7 +253,7 @@ export default function Negocio() {
               <div className={styles.fieldQuestion}>¿Qué porcentaje de ganancia quieres?</div>
               <div className={styles.fieldHint}>
                 <strong>20%</strong> — justo para empezar &nbsp;·&nbsp;
-                <strong>30%</strong> — lo más común en repostería &nbsp;·&nbsp;
+                <strong>30%</strong> — una referencia muy común en repostería &nbsp;·&nbsp;
                 <strong>50%</strong> — para productos premium
               </div>
               <div className={styles.margenOpts}>
@@ -275,6 +279,7 @@ export default function Negocio() {
                 <input
                   className={styles.input}
                   type="number" min="0" max="1000"
+                  inputMode="decimal"
                   value={config.margen}
                   onChange={e => setField('margen', e.target.value)}
                   placeholder="Ej: 40"

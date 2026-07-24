@@ -89,6 +89,50 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(list_response.status_code, 200)
         self.assertEqual(len(list_response.json()), 1)
 
+    def test_actualizar_empleado_desde_api(self):
+        create_response = self.client.post(
+            "/empleados",
+            json={
+                "nombre": "Ana",
+                "pago_diario": 300.0,
+                "horas_dia": 8.0,
+                "activo": True,
+            },
+        )
+        empleado_id = create_response.json()["id"]
+
+        update_response = self.client.put(
+            f"/empleados/{empleado_id}",
+            json={
+                "nombre": "Ana Maria",
+                "pago_diario": 360.0,
+                "horas_dia": 6.0,
+                "activo": False,
+            },
+        )
+
+        self.assertEqual(update_response.status_code, 200)
+        body = update_response.json()
+        self.assertEqual(body["nombre"], "Ana Maria")
+        self.assertEqual(body["pago_diario"], 360.0)
+        self.assertEqual(body["horas_dia"], 6.0)
+        self.assertFalse(body["activo"])
+        self.assertEqual(body["salario_hora"], 60.0)
+
+    def test_actualizar_empleado_inexistente_regresa_404(self):
+        response = self.client.put(
+            "/empleados/999",
+            json={
+                "nombre": "Ana",
+                "pago_diario": 300.0,
+                "horas_dia": 8.0,
+                "activo": True,
+            },
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()["detail"], "Empleado no encontrado")
+
     def test_crear_ingrediente_duplicado_regresa_409(self):
         payload = {
             "nombre": "Azucar refinada",

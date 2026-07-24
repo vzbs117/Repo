@@ -12,6 +12,15 @@ const MEDIDA_LABEL = {
   pz: 'piezas', pizca: 'pizca',
 }
 
+const normalizarTexto = valor =>
+  valor
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+const compararPorNombre = (a, b) =>
+  a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+
 export default function Recetas() {
   const {
     recetas, ingredientes, loading, loadingDetalle,
@@ -35,18 +44,19 @@ export default function Recetas() {
     setBusquedaIngrediente(ingredienteSeleccionado?.nombre ?? '')
   }, [ingredienteSeleccionado])
 
-  const terminoIngrediente = busquedaIngrediente.trim().toLowerCase()
-  const ingredientesFiltrados = ingredientes.filter(i =>
-    i.nombre.toLowerCase().includes(terminoIngrediente)
+  const terminoIngrediente = normalizarTexto(busquedaIngrediente.trim())
+  const ingredientesOrdenados = [...ingredientes].sort(compararPorNombre)
+  const ingredientesFiltrados = ingredientesOrdenados.filter(i =>
+    normalizarTexto(i.nombre).includes(terminoIngrediente)
   )
   const ingredientesSugeridos = terminoIngrediente
     ? ingredientesFiltrados
-    : ingredientes.slice(0, 8)
+    : ingredientesOrdenados.slice(0, 8)
 
   function handleBusquedaIngrediente(valor) {
     setBusquedaIngrediente(valor)
     if (!ingredienteSeleccionado) return
-    if (valor.trim().toLowerCase() === ingredienteSeleccionado.nombre.toLowerCase()) return
+    if (normalizarTexto(valor.trim()) === normalizarTexto(ingredienteSeleccionado.nombre)) return
     setFormItem(p => ({ ...p, ingredienteId: '', unidad: null }))
   }
 
@@ -91,7 +101,7 @@ export default function Recetas() {
       <div className={styles.header}>
         <h1 className={styles.title}>📋 Mis recetas</h1>
         <p className={styles.subtitle}>
-          Crea tus recetas, agrégales ingredientes y ve cuánto cuesta hacerlas.
+          Crea tus recetas, agrega ingredientes y calcula cuánto cuesta prepararlas.
         </p>
       </div>
 
@@ -99,7 +109,7 @@ export default function Recetas() {
         <div className={styles.panelLeft}>
           <div className={styles.card}>
             <div className={styles.cardTitle}>Nueva receta</div>
-            <div className={styles.cardSub}>Dale un nombre y cuántas porciones produce este lote.</div>
+            <div className={styles.cardSub}>Ponle un nombre y define cuántas porciones rinde este lote.</div>
 
             <div className={styles.fieldGroup}>
               <div className={styles.fieldQuestion}>¿Cómo se llama esta receta?</div>
@@ -108,6 +118,7 @@ export default function Recetas() {
                 value={formReceta.nombre}
                 onChange={e => setFormReceta(p => ({ ...p, nombre: e.target.value }))}
                 placeholder="Ej: Cupcakes de chocolate"
+                autoComplete="off"
               />
             </div>
 
@@ -118,6 +129,7 @@ export default function Recetas() {
                 className={styles.input}
                 type="number"
                 min="1"
+                inputMode="numeric"
                 value={formReceta.porciones}
                 onChange={e => setFormReceta(p => ({ ...p, porciones: e.target.value }))}
               />
@@ -137,17 +149,17 @@ export default function Recetas() {
               <div>
                 <div className={styles.cardTitle}>Mis recetas</div>
                 <div style={{ fontSize: 12, color: 'var(--hint)', marginTop: 2 }}>
-                  Toca una para ver su detalle
+                  Elige una para ver su detalle
                 </div>
               </div>
             </div>
 
             <div className={styles.recetaList}>
               {loading && recetas.length === 0 ? (
-                <div className={styles.stateRow}>Cargando...</div>
+                <div className={styles.stateRow}>Cargando recetas...</div>
               ) : recetas.length === 0 ? (
                 <div className={styles.stateRow}>
-                  Aún no tienes recetas.<br />¡Crea la primera arriba!
+                  Todavía no has creado recetas.<br />Empieza con la primera arriba.
                 </div>
               ) : (
                 recetas.map(r => {
@@ -175,7 +187,7 @@ export default function Recetas() {
           {recetaActivaId && (
             <div className={`${styles.card} ${styles.accentBorder}`}>
               <div className={styles.cardTitle}>Agregar ingrediente</div>
-              <div className={styles.cardSub}>Selecciona qué usas en esta receta.</div>
+              <div className={styles.cardSub}>Selecciona los ingredientes que usas en esta receta.</div>
 
               <div className={styles.recetaBanner}>
                 <div className={styles.recetaBannerLabel}>Agregando a</div>
@@ -191,10 +203,11 @@ export default function Recetas() {
                   onChange={e => handleBusquedaIngrediente(e.target.value)}
                   placeholder="Busca por nombre"
                   autoComplete="off"
+                  aria-label="Buscar ingrediente por nombre"
                 />
                 <div className={styles.searchHint}>
                   {busquedaIngrediente.trim()
-                    ? 'Selecciona un ingrediente de la lista filtrada.'
+                    ? 'Selecciona una opción de la lista filtrada.'
                     : 'Escribe el nombre para encontrarlo más rápido.'}
                 </div>
                 <div className={styles.searchList}>
@@ -227,6 +240,7 @@ export default function Recetas() {
                   type="number"
                   min="0"
                   step="0.001"
+                  inputMode="decimal"
                   value={formItem.cantidad}
                   onChange={e => setFormItem(p => ({ ...p, cantidad: e.target.value }))}
                   placeholder="Ej: 200"
@@ -255,7 +269,7 @@ export default function Recetas() {
               </button>
 
               <div className={styles.tip}>
-                💡 Ya puedes usar cucharadita para ingredientes compatibles y pizca para sal.
+                💡 Puedes usar cucharadita con ingredientes compatibles y pizca para la sal.
               </div>
             </div>
           )}
@@ -267,8 +281,8 @@ export default function Recetas() {
               <span className={styles.detalleVacioIcon}>👈</span>
               <div className={styles.detalleVacioTitle}>Elige una receta</div>
               <div className={styles.detalleVacioSub}>
-                Toca cualquier receta de la lista para ver<br />
-                sus ingredientes y cuánto cuesta hacerla.
+                Elige una receta de la lista para ver<br />
+                sus ingredientes y su costo total.
               </div>
             </div>
           ) : (
@@ -316,7 +330,7 @@ export default function Recetas() {
 
               <div className={styles.ingRecetaList}>
                 {loadingDetalle ? (
-                  <div className={styles.stateRow}>Cargando...</div>
+                  <div className={styles.stateRow}>Cargando detalle de la receta...</div>
                 ) : !detalle?.items?.length ? (
                   <div className={styles.stateRow}>
                     Esta receta no tiene ingredientes aún.<br />
@@ -344,6 +358,7 @@ export default function Recetas() {
                         <button
                           className={styles.btnIconSm}
                           title="Quitar ingrediente"
+                          aria-label={`Quitar ${item.ingrediente.nombre} de la receta`}
                           onClick={() => handleEliminarItem(item.id)}
                         >
                           ✕

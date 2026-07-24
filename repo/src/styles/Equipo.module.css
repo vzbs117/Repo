@@ -72,8 +72,17 @@
   padding:       18px 20px;
 }
 
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 .cardTitle { font-family: var(--font-display); font-size: 18px; letter-spacing: -.1px; margin-bottom: 4px; }
 .cardSub   { font-size: 12px; color: var(--hint); margin-bottom: 16px; line-height: 1.5; }
+.cardHead .cardSub { margin-bottom: 0; }
 
 /* ── FORM ── */
 .fieldGroup    { margin-bottom: 14px; }
@@ -161,6 +170,35 @@
 .btnPrimary:active   { transform: translateY(1px); }
 .btnPrimary:disabled { opacity: .38; cursor: not-allowed; }
 
+.btnGhost,
+.btnGhostSm {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.btnGhost {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.btnGhostSm {
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btnGhost:hover,
+.btnGhostSm:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
 /* ── LISTA DE EMPLEADOS ── */
 .empList { display: grid; gap: 10px; }
 
@@ -198,6 +236,13 @@
 .empSalario      { text-align: right; flex-shrink: 0; }
 .empSalarioValor { font-family: var(--font-display); font-size: 18px; letter-spacing: -.2px; color: var(--accent-text); }
 .empSalarioLabel { font-size: 11px; color: var(--hint); margin-top: 1px; }
+
+.empActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
 
 .badgeActivo   { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
 .badgeInactivo { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; background: var(--bg); color: var(--hint); border: 1px solid var(--border); }

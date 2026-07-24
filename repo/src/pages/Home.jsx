@@ -9,7 +9,7 @@ const SECCIONES = [
     to:    '/ingredientes',
     icon:  '🥚',
     title: 'Mis ingredientes',
-    desc:  'Guarda lo que compras — harina, huevos, mantequilla — y cuánto te cuesta cada gramo.',
+    desc:  'Guarda lo que compras y calcula cuánto te cuesta cada gramo, mililitro o pieza.',
     color: styles.cardAmber,
   },
   {
@@ -23,7 +23,7 @@ const SECCIONES = [
     to:    '/equipo',
     icon:  '👩‍🍳',
     title: 'Mi equipo',
-    desc:  'Registra a quienes te ayudan para incluir su pago en el costo de tus productos.',
+    desc:  'Registra a quienes te ayudan para incluir su pago dentro del costo de tus productos.',
     color: styles.cardBlue,
   },
   {
@@ -37,17 +37,17 @@ const SECCIONES = [
 
 function getTip(ni, nr, ne) {
   if (ni === 0)
-    return '👋 ¡Bienvenido! El primer paso es agregar tus ingredientes — toca "Mis ingredientes" para empezar.'
+    return '👋 ¡Bienvenido! Empieza por guardar tus ingredientes para calcular costos reales desde el inicio.'
   if (nr === 0)
-    return '¡Ya tienes ingredientes! Ahora crea tu primera receta para calcular cuánto te cuesta hacerla.'
+    return 'Ya tienes ingredientes guardados. El siguiente paso es crear tu primera receta.'
   if (ne === 0)
-    return '¿Alguien te ayuda en la cocina? Agrégalo en "Mi equipo" para incluir su pago en tus costos.'
-  return '¡Todo listo! 🎉 Ve a "¿Cuánto gano?" para calcular el precio ideal de venta de tus productos.'
+    return 'Si alguien te ayuda en la cocina, agrégalo en "Mi equipo" para incluir su pago en tus costos.'
+  return '¡Todo listo! Ve a "¿Cuánto gano?" para calcular tu precio de venta y tu ganancia.'
 }
 
 export default function Home() {
   const [stats, setStats] = useState({ ingredientes: '—', recetas: '—', equipo: '—' })
-  const [tip,   setTip]   = useState('Conectando con el servidor...')
+  const [tip,   setTip]   = useState('Conectando con tu información...')
 
   useEffect(() => {
     async function cargar() {
@@ -64,7 +64,7 @@ export default function Home() {
         setTip(getTip(ni, nr, ne))
       } catch {
         setStats({ ingredientes: '—', recetas: '—', equipo: '—' })
-        setTip('⚠️ No se pudo conectar al servidor. Asegúrate de que el backend esté corriendo con python run.py')
+        setTip('⚠️ No se pudo cargar la información. Verifica que el backend esté encendido e inténtalo de nuevo.')
       }
     }
     cargar()
@@ -77,7 +77,7 @@ export default function Home() {
         <span className={styles.emoji}>👋</span>
         <h1 className={styles.title}>¡Hola! ¿Qué vas a hacer hoy?</h1>
         <p className={styles.subtitle}>
-          Elige una sección para empezar. Todo está pensado para ser rápido y fácil.
+          Elige una sección para empezar. La idea es que todo sea claro, rápido y fácil de usar.
         </p>
       </div>
 
