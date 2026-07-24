@@ -47,10 +47,6 @@ export default function Negocio() {
     window.print()
   }
 
-  function handleImprimir() {
-    window.print()
-  }
-
   function getTip(r) {
     const margen = Math.round(r.margen_real * 100)
     if (margen < 25)

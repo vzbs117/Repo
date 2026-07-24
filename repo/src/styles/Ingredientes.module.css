@@ -1,12 +1,41 @@
 .page {
-  max-width: 720px;
+  max-width: 1360px;
   margin:    0 auto;
-  padding:   28px 20px 80px;
+  padding:   32px 28px 88px;
+}
+
+.layout {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+
+.sidebar,
+.content {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .page { padding: 24px 18px 72px; }
+}
+
+.header { margin-bottom: 28px; }
+
+@media (min-width: 980px) {
+  .layout {
+    display: grid;
+    grid-template-columns: 400px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 88px;
+  }
 }
 
 /* ── HEADER ── */
-.header { margin-bottom: 24px; }
-
 .title {
   font-family:    var(--font-display);
   font-size:      32px;
@@ -173,6 +202,10 @@
   margin-bottom: 14px;
 }
 
+.content .emptyState:last-child {
+  margin-top: 14px;
+}
+
 .searchIcon {
   position:  absolute;
   left:      13px;
@@ -199,7 +232,10 @@
 .searchInput::placeholder { color: var(--hint); }
 
 /* ── TARJETAS DE INGREDIENTE ── */
-.ingList { display: grid; gap: 10px; }
+.ingList {
+  display: grid;
+  gap: 10px;
+}
 
 .ingCard {
   background:    var(--surface);

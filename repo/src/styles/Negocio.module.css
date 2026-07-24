@@ -1,7 +1,11 @@
-.page     { max-width: 760px; margin: 0 auto; padding: 28px 20px 80px; }
+.page     { max-width: 1360px; margin: 0 auto; padding: 32px 28px 88px; }
 .header   { margin-bottom: 24px; }
 .title    { font-family: var(--font-display); font-size: 32px; letter-spacing: -.3px; margin-bottom: 6px; }
 .subtitle { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+@media (max-width: 760px) {
+  .page { padding: 24px 18px 72px; }
+}
 
 .recetaSelector { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; }
 .recetaSelectorLabel { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin-bottom: 8px; }
@@ -11,6 +15,17 @@
 .select option { background: #fff; color: var(--text); }
 
 .steps { display: grid; gap: 14px; margin-bottom: 24px; }
+
+@media (min-width: 1100px) {
+  .steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .step {
+    height: 100%;
+  }
+}
 
 .step { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color .2s; }
 .step.active { border-color: var(--accent); }
@@ -76,7 +91,7 @@
 
 .resultadoTitle { font-family: var(--font-display); font-size: 22px; letter-spacing: -.2px; margin-bottom: 16px; }
 
-.numerosTop { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.numerosTop { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
 @media (max-width: 480px) { .numerosTop { grid-template-columns: 1fr; } }
 
 .numeroCard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
@@ -106,6 +121,14 @@
 .desgloseValor { font-weight: 500; font-variant-numeric: tabular-nums; }
 
 .actions { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+
+@media (min-width: 980px) {
+  .recetaSelector,
+  .consejo,
+  .resultados {
+    max-width: 1040px;
+  }
+}
 
 .btnPrimary,
 .btnPrint,
@@ -159,82 +182,6 @@
   .statusMsg,
   .actions,
   :global(.toast) {
-    display: none !important;
-  }
-
-  .resultados {
-    animation: none;
-  }
-
-  .resultadoTitle {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-
-  .numerosTop,
-  .desglose,
-  .consejo {
-    break-inside: avoid;
-  }
-
-  .numeroCard,
-  .desglose,
-  .consejo {
-    border: 1px solid #d9d9d9;
-    box-shadow: none;
-  }
-}
-
-.actions { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
-
-.btnPrimary,
-.btnPrint,
-.btnGhost {
-  padding: 12px 18px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-body);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all .15s;
-}
-
-.btnPrimary {
-  flex: 1;
-  background: var(--text);
-  color: #fff;
-  border: none;
-  font-weight: 600;
-}
-.btnPrimary:hover { opacity: .85; }
-
-.btnPrint {
-  background: var(--accent-bg);
-  color: var(--accent-text);
-  border: 1px solid var(--accent);
-  font-weight: 600;
-}
-.btnPrint:hover { opacity: .88; }
-
-.btnGhost {
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  font-weight: 500;
-}
-.btnGhost:hover { border-color: var(--text); color: var(--text); }
-
-@media print {
-  .page {
-    max-width: none;
-    padding: 0;
-  }
-
-  .header,
-  .recetaSelector,
-  .steps,
-  .btnCalcular,
-  .statusMsg,
-  .actions {
     display: none !important;
   }
 
